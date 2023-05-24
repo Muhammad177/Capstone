@@ -1,12 +1,15 @@
-FROM golang:alpine
+FROM golang:1.20-alpine
 
 WORKDIR /app
 
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
 COPY . .
 
-RUN go mod download
-RUN go build -o dist
+RUN go build -o praktikum-docker
 
-EXPOSE 1323
+EXPOSE 8080
 
-ENTRYPOINT [ "./dist" ]
+CMD ./praktikum-docker
