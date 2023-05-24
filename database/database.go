@@ -33,7 +33,7 @@ func InitDB() {
 		DB_Password: "",
 		DB_Port:     "3306",
 		DB_Host:     "localhost",
-		DB_Name:     "Capstone",
+		DB_Name:     "capstone",
 	}
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
