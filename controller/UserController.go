@@ -3,51 +3,71 @@ package controller
 import (
 	"Capstone/database"
 	"Capstone/midleware"
+	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"Capstone/models"
 	"net/http"
 
+	"github.com/google/uuid"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/echo/v4"
 )
 
 func CreateUserController(c echo.Context) error {
+	// Bind data pengguna dari permintaan
 	user := models.User{}
-	c.Bind(&user)
-	user.Role = "User"
+	err := c.Bind(&user)
+	user.Role = "user"
 
-	file, err := c.FormFile("file")
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Failed to upload file")
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
 	}
 
-	// Source
+	// Menerima file foto dari permintaan
+	file, err := c.FormFile("photo")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to upload photo")
+	}
+
+	// Generate nama unik untuk file foto
+	ext := filepath.Ext(file.Filename)
+	filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
+
+	// Buka file foto yang diunggah
 	src, err := file.Open()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to open file")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to open photo")
 	}
 	defer src.Close()
 
-	// Destination
-	dst, err := os.Create(file.Filename)
+	// Simpan file foto di direktori lokal
+	dstPath := "uploads/" + filename
+	dst, err := os.Create(dstPath)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create file")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
 	}
 	defer dst.Close()
 
-	// Copy
+	// Salin isi file foto yang diunggah ke file tujuan
 	if _, err = io.Copy(dst, src); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to save file")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
 	}
 
-	if err := database.DB.Save(&user).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	// Set path file foto pengguna
+	user.Photo = dstPath
+
+	// Simpan pengguna ke database
+	err = database.DB.Save(&user).Error
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to save user")
 	}
 
+	// Mengembalikan respons JSON
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success create new user",
+		"message": "Berhasil membuat pengguna baru",
 		"user":    user,
 	})
 }
