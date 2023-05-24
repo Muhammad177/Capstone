@@ -1,8 +1,8 @@
 package midleware
 
 import (
-	"Remidi/database"
-	"Remidi/models"
+	"Capstone/database"
+	"Capstone/models"
 	"fmt"
 
 	"github.com/labstack/echo/v4"

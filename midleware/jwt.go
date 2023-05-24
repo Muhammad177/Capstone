@@ -1,7 +1,7 @@
 package midleware
 
 import (
-	"Remidi/constant"
+	"Capstone/constant"
 	"time"
 
 	"github.com/golang-jwt/jwt"

@@ -1,7 +1,7 @@
 package database
 
 import (
-	"Remidi/models"
+	"Capstone/models"
 	"fmt"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -52,5 +52,5 @@ func InitDB() {
 }
 
 func InitialMigration() {
-	DB.AutoMigrate(&models.User{}, &models.Product{}, &models.Category{})
+	DB.AutoMigrate(&models.User{})
 }

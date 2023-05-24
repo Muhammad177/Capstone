@@ -1,8 +1,8 @@
 package main
 
 import (
-	"Remidi/database"
-	"Remidi/routes"
+	"Capstone/database"
+	"Capstone/routes"
 
 )
 
