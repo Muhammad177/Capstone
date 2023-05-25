@@ -30,9 +30,9 @@ func InitDB() {
 
 	config := Config{
 		DB_Username: "root",
-		DB_Password: "root",
+		DB_Password: "",
 		DB_Port:     "3306",
-		DB_Host:     "db",
+		DB_Host:     "localhost",
 		DB_Name:     "capstone",
 	}
 

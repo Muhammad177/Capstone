@@ -16,20 +16,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func CreateUserController(c echo.Context) error {
-	// Bind data pengguna dari permintaan
-	user := models.User{}
-	err := c.Bind(&user)
-	user.Role = "user"
-
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
-	}
-
+func CreatePhoto(c echo.Context) (string, error) {
 	// Menerima file foto dari permintaan
 	file, err := c.FormFile("photo")
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Failed to upload photo")
+		return "", echo.NewHTTPError(http.StatusBadRequest, "Failed to upload photo")
 	}
 
 	// Generate nama unik untuk file foto
@@ -39,7 +30,7 @@ func CreateUserController(c echo.Context) error {
 	// Buka file foto yang diunggah
 	src, err := file.Open()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to open photo")
+		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to open photo")
 	}
 	defer src.Close()
 
@@ -47,17 +38,38 @@ func CreateUserController(c echo.Context) error {
 	dstPath := "uploads/" + filename
 	dst, err := os.Create(dstPath)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
+		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
 	}
 	defer dst.Close()
 
 	// Salin isi file foto yang diunggah ke file tujuan
 	if _, err = io.Copy(dst, src); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
+		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
+	}
+
+	// Mengembalikan path file foto
+	return dstPath, nil
+}
+
+func CreateUserController(c echo.Context) error {
+	// Bind data pengguna dari permintaan
+	user := models.User{}
+	err := c.Bind(&user)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
+	}
+
+	// Set nilai default untuk role
+	user.Role = "User"
+
+	// Simpan foto pengguna
+	photoPath, err := CreatePhoto(c)
+	if err != nil {
+		return err
 	}
 
 	// Set path file foto pengguna
-	user.Photo = dstPath
+	user.Photo = photoPath
 
 	// Simpan pengguna ke database
 	err = database.DB.Save(&user).Error
@@ -68,6 +80,33 @@ func CreateUserController(c echo.Context) error {
 	// Mengembalikan respons JSON
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Berhasil membuat pengguna baru",
+		"user":    user,
+	})
+}
+func UpdateUserController(c echo.Context) error {
+	id := c.Param("id")
+
+	var user models.User
+	if err := database.DB.Where("id = ?", id).First(&user).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
+	}
+	photoPath, err := CreatePhoto(c)
+	if err != nil {
+		return err
+	}
+
+	// Set path file foto pengguna
+	user.Photo = photoPath
+	if err := c.Bind(&user); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
+	}
+
+	if err := database.DB.Model(&user).Updates(user).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "User updated successfully",
 		"user":    user,
 	})
 }
