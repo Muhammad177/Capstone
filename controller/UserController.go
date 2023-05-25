@@ -95,7 +95,6 @@ func UpdateUserController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
 	}
 
-	// Simpan email sebelumnya untuk memeriksa perubahan
 	previousEmail := user.Email
 
 	if err := c.Bind(&user); err != nil {
@@ -103,7 +102,6 @@ func UpdateUserController(c echo.Context) error {
 	}
 
 	if previousEmail != user.Email {
-		// Periksa apakah email baru sudah ada di database
 		var existingUser models.User
 		if err := database.DB.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
 			return echo.NewHTTPError(http.StatusBadRequest, "Email already exists")
@@ -123,7 +121,7 @@ func UpdateUserController(c echo.Context) error {
 
 	user.Photo = photoPath
 
-	if err := database.DB.Save(&user).Error; err != nil {
+	if err := database.DB.Model(&user).Updates(&user).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
 	}
 
