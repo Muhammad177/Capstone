@@ -94,6 +94,13 @@ func UpdateUserController(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	// Menghapus file foto terkait jika ada
+	if user.Photo != "" {
+		if err := os.Remove(user.Photo); err != nil {
+			// Jika gagal menghapus file, Anda dapat menangani kesalahan di sini
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user photo")
+		}
+	}
 
 	// Set path file foto pengguna
 	user.Photo = photoPath
@@ -126,19 +133,27 @@ func GetUsersController(c echo.Context) error {
 }
 func DeleteUserController(c echo.Context) error {
 	id := c.Param("id")
-	var users models.User
+	var user models.User
 
-	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
+	if err := database.DB.Where("id = ?", id).First(&user).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err := database.DB.Delete(&users).Error; err != nil {
+	// Menghapus file foto terkait jika ada
+	if user.Photo != "" {
+		if err := os.Remove(user.Photo); err != nil {
+			// Jika gagal menghapus file, Anda dapat menangani kesalahan di sini
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user photo")
+		}
+	}
+
+	if err := database.DB.Delete(&user).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success delete user by id",
-		"user":    users,
+		"message": "Success delete user by ID",
+		"user":    user,
 	})
 }
 func LoginUserController(c echo.Context) error {
