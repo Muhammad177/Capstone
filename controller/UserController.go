@@ -110,7 +110,37 @@ func UpdateUserController(c echo.Context) error {
 		"user":    user,
 	})
 }
+func GetUsersController(c echo.Context) error {
+	var users []models.User
+	err := database.DB.Find(&users).Error
 
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"messages": "success get all users",
+		"users":    users,
+	})
+}
+func DeleteUserController(c echo.Context) error {
+	id := c.Param("id")
+	var users models.User
+
+	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if err := database.DB.Delete(&users).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success delete user by id",
+		"user":    users,
+	})
+}
 func LoginUserController(c echo.Context) error {
 	user := models.User{}
 	c.Bind(&user)
