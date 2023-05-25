@@ -17,6 +17,12 @@ import (
 )
 
 func CreatePhoto(c echo.Context) (string, error) {
+	// Check if a file photo is present in the request
+	_, err := c.FormFile("photo")
+	if err != nil {
+		return "", nil
+	}
+
 	// Menerima file foto dari permintaan
 	file, err := c.FormFile("photo")
 	if err != nil {
@@ -102,8 +108,8 @@ func UpdateUserController(c echo.Context) error {
 	}
 
 	if previousEmail != user.Email {
-		var existingUser models.User
-		if err := database.DB.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
+		
+		if err := database.DB.Where("email = ?", user.Email).First(&user).Error; err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, "Email already exists")
 		}
 	}
