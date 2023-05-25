@@ -59,6 +59,10 @@ func CreateUserController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
 	}
 
+	if err := database.DB.Where("email = ?", user.Email).First(&user).Error; err == nil {
+		// Email sudah ada, kembalikan respons error
+		return echo.NewHTTPError(http.StatusBadRequest, "Email already exists")
+	}
 	// Set nilai default untuk role
 	user.Role = "User"
 
@@ -90,25 +94,36 @@ func UpdateUserController(c echo.Context) error {
 	if err := database.DB.Where("id = ?", id).First(&user).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
 	}
-	photoPath, err := CreatePhoto(c)
-	if err != nil {
-		return err
-	}
-	// Menghapus file foto terkait jika ada
-	if user.Photo != "" {
-		if err := os.Remove(user.Photo); err != nil {
-			// Jika gagal menghapus file, Anda dapat menangani kesalahan di sini
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user photo")
-		}
-	}
 
-	// Set path file foto pengguna
-	user.Photo = photoPath
+	// Simpan email sebelumnya untuk memeriksa perubahan
+	previousEmail := user.Email
+
 	if err := c.Bind(&user); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
 	}
 
-	if err := database.DB.Model(&user).Updates(user).Error; err != nil {
+	if previousEmail != user.Email {
+		// Periksa apakah email baru sudah ada di database
+		var existingUser models.User
+		if err := database.DB.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
+			return echo.NewHTTPError(http.StatusBadRequest, "Email already exists")
+		}
+	}
+
+	photoPath, err := CreatePhoto(c)
+	if err != nil {
+		return err
+	}
+
+	if user.Photo != "" {
+		if err := os.Remove(user.Photo); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user photo")
+		}
+	}
+
+	user.Photo = photoPath
+
+	if err := database.DB.Save(&user).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
 	}
 
@@ -117,6 +132,7 @@ func UpdateUserController(c echo.Context) error {
 		"user":    user,
 	})
 }
+
 func GetUsersController(c echo.Context) error {
 	var users []models.User
 	err := database.DB.Find(&users).Error
