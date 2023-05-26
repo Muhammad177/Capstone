@@ -108,14 +108,16 @@ func UpdateUserController(c echo.Context) error {
 	}
 
 	if previousEmail != user.Email {
-		var emailno models.User
-		if err := database.DB.Where("email = ?", user.Email).First(&emailno).Error; err == nil {
+		var existingUser models.User
+		if err := database.DB.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
 			return echo.NewHTTPError(http.StatusBadRequest, "Email already exists")
 		}
 	}
 
-	if _, err := c.FormFile("photo"); err == nil {
-		// Photo is uploaded, execute CreatePhoto function
+	// Check if new photo is uploaded
+	_, err := c.FormFile("photo")
+	if err == nil {
+		// New photo is uploaded, execute CreatePhoto function
 		photoPath, err := CreatePhoto(c)
 		if err != nil {
 			return err
@@ -130,17 +132,21 @@ func UpdateUserController(c echo.Context) error {
 
 		user.Photo = photoPath
 	} else if err == http.ErrMissingFile {
-		// No new photo provided, set photo field to empty string
-		user.Photo = ""
+		// No new photo provided, check if existing photo needs to be deleted
+		if user.Photo != "" {
+			// Delete previous photo from database and local directory
+			if err := os.Remove(user.Photo); err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user photo")
+			}
+
+			user.Photo = ""
+		}
 	}
 
 	// Update the user in the database
 	if err := database.DB.Model(&user).Updates(map[string]interface{}{
 		"photo": user.Photo,
 	}).Error; err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
-	}
-	if err := database.DB.Model(&user).Updates(&user).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
 	}
 
