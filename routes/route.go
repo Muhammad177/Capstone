@@ -14,10 +14,11 @@ func New() *echo.Echo {
 	// routing with query parameter
 	e.POST("/login", controller.LoginUserController)
 	e.POST("/user", controller.CreateUserController)
-	e.PUT("/user/:id", controller.UpdateUserController)
-	e.DELETE("/user/:id", controller.DeleteUserController)
-	e.GET("/user", controller.GetUsersController)
-	//eJwt := e.Group("/jwt")
+	eJwt := e.Group("/jwt")
+	eJwt.PUT("/user/:id", controller.UpdateUserController)
+	eJwt.DELETE("/user/:id", controller.DeleteUserController)
+	eJwt.GET("/user", controller.GetUsersController)
+	eJwt.GET("/user:id", controller.GetUserByidController)
 	e.Logger.Fatal(e.Start(":8000"))
 	return e
 }

@@ -155,7 +155,18 @@ func UpdateUserController(c echo.Context) error {
 		"user":    user,
 	})
 }
+func GetUserByidController(c echo.Context) error {
+	id := c.Param("id")
+	var user models.User
+	if err := database.DB.Where("id = ?", id).First(&user).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success get User by id",
+		"user":    user,
+	})
+}
 func GetUsersController(c echo.Context) error {
 	var users []models.User
 	err := database.DB.Find(&users).Error
