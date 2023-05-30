@@ -9,8 +9,10 @@ require (
 )
 
 require (
+	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-playground/validator/v10 v10.14.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/labstack/echo-jwt v0.0.0-20221127215225-c84d41a71003 // indirect
