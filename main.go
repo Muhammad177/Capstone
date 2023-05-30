@@ -12,8 +12,23 @@ import (
 	"syscall"
 	"time"
 
+	_threadController "Capstone/controllers/threads"
+	_threadUseCase "Capstone/models/threads"
+
 	_userController "Capstone/controllers/users"
 	_userUseCase "Capstone/models/users"
+
+	_commentController "Capstone/controllers/comments"
+	_commentUseCase "Capstone/models/comments"
+
+	_likeController "Capstone/controllers/likes"
+	_likeUseCase "Capstone/models/likes"
+
+	_followController "Capstone/controllers/follows"
+	_followUseCase "Capstone/models/follows"
+
+	_savedthreadController "Capstone/controllers/savedthreads"
+	_savedthreadUseCase "Capstone/models/savedthreads"
 
 	_dbDriver "Capstone/drivers/mysql"
 
@@ -49,6 +64,26 @@ func main() {
 
 	e := echo.New()
 
+	likeRepo := _driverFactory.NewLikeRepository(db)
+	likeUsecase := _likeUseCase.NewLikeUsecase(likeRepo)
+	likeCtrl := _likeController.NewLikeController(likeUsecase)
+
+	commentRepo := _driverFactory.NewCommentRepository(db)
+	commentUsecase := _commentUseCase.NewCommentUsecase(commentRepo)
+	commentCtrl := _commentController.NewCommentController(commentUsecase)
+
+	threadRepo := _driverFactory.NewThreadRepository(db)
+	threadUsecase := _threadUseCase.NewThreadUsecase(threadRepo)
+	threadCtrl := _threadController.NewThreadController(threadUsecase)
+
+	savedthreadRepo := _driverFactory.NewSavedthreadRepository(db)
+	savedthreadUsecase := _savedthreadUseCase.NewSavedthreadUsecase(savedthreadRepo)
+	savedthreadCtrl := _savedthreadController.NewSavedthreadController(savedthreadUsecase)
+
+	followRepo := _driverFactory.NewFollowRepository(db)
+	followUsecase := _followUseCase.NewFollowUsecase(followRepo)
+	followCtrl := _followController.NewFollowController(followUsecase)
+
 	userRepo := _driverFactory.NewUserRepository(db)
 	userUsecase := _userUseCase.NewUserUseCase(userRepo, &configJWT)
 	userCtrl := _userController.NewAuthController(userUsecase)
@@ -56,6 +91,11 @@ func main() {
 	routesInit := _routes.ControllerList{
 		LoggerMiddleware: configLogger.Init(),
 		AuthController:   *userCtrl,
+		ThreadController: *threadCtrl,
+		CommentController: *commentCtrl,
+		LikeController: *likeCtrl,
+		FollowController: *followCtrl,
+		SavedthreadController: *savethreadCtrl,
 		JWTMiddleware:    configJWT.Init(),
 	}
 
