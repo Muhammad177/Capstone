@@ -12,12 +12,16 @@ func New() *echo.Echo {
 
 	midleware.LogMiddleware(e)
 	// routing with query parameter
-	e.POST("/login", controller.LoginUserController)
+	e.POST("/login", controller.LoginController)
 	e.POST("/user", controller.CreateUserController)
-	e.PUT("/user/:id", controller.UpdateUserController)
-	e.DELETE("/user/:id", controller.DeleteUserController)
-	e.GET("/user", controller.GetUsersController)
-	//eJwt := e.Group("/jwt")
+	eJwt := e.Group("/jwt")
+	eJwt.PUT("/admin/:id", controller.UpdateUserAdminController)
+	eJwt.DELETE("/admin/:id", controller.DeleteUserAdminController)
+	eJwt.GET("/admin", controller.GetUsersAdminController)
+	eJwt.GET("/admin/:id", controller.GetUserByidAdminController)
+	eJwt.PUT("/user/:id", controller.UpdateUserController)
+	eJwt.DELETE("/user/:id", controller.DeleteUserController)
+	eJwt.GET("/user", controller.GetUserController)
 	e.Logger.Fatal(e.Start(":8000"))
 	return e
 }
