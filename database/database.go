@@ -4,14 +4,11 @@ import (
 	"Capstone/models"
 	"fmt"
 
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
-var (
-	DB *gorm.DB
-)
+var DB *gorm.DB
 
 func init() {
 	InitDB()
@@ -30,9 +27,9 @@ func InitDB() {
 
 	config := Config{
 		DB_Username: "root",
-		DB_Password: "",
+		DB_Password: "root",
 		DB_Port:     "3306",
-		DB_Host:     "localhost",
+		DB_Host:     "db",
 		DB_Name:     "capstone",
 	}
 
@@ -45,12 +42,15 @@ func InitDB() {
 	)
 
 	var err error
-	DB, err = gorm.Open("mysql", connectionString)
+	DB, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
 }
 
 func InitialMigration() {
-	DB.AutoMigrate(&models.User{})
+	DB.AutoMigrate(
+		&models.User{},
+		&models.Thread{},
+	)
 }
