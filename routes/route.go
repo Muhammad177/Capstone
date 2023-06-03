@@ -22,6 +22,7 @@ func New() *echo.Echo {
 	eJwt.PUT("/user/:id", controller.UpdateUserController)
 	eJwt.DELETE("/user/:id", controller.DeleteUserController)
 	eJwt.GET("/user", controller.GetUserController)
+	//confirm
 	e.Logger.Fatal(e.Start(":8000"))
 	return e
 }
