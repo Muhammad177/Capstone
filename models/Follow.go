@@ -1,10 +1,8 @@
 package models
 
-import (
-	"github.com/jinzhu/gorm"
-)
+import "github.com/jinzhu/gorm"
 
-type Thread struct {
+type Follow struct {
 	gorm.Model
 	Title   string `json:"title" form:"title"`
 	Topic   string `json:"topic" form:"topic"`
