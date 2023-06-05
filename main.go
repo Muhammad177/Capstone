@@ -6,7 +6,6 @@ import (
 
 )
 
-
 func main() {
 	database.InitDB()
 	e := routes.New()
