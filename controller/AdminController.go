@@ -227,29 +227,31 @@ func DeleteUserAdminController(c echo.Context) error {
 		"user":    users,
 	})
 }
-func LoginController(c echo.Context) error {
-	user := models.User{}
-	c.Bind(&user)
-	if err := database.DB.Where("email = ? AND password = ?", user.Email, user.Password).First(&user).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
-			"message": "Failed Login",
-			"error":   err.Error(),
-		})
+
+func LoginAdminController(c echo.Context) error {
+	admin := models.AdminResponse{ID: 1, Name: "Wahyu", Email: "admin@gmail.com", Password: "admin123"}
+	if err := c.Bind(&admin); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request"})
 	}
-
-	token, err := midleware.CreateToken(int(user.ID), user.Username, user.Role)
-
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": "Failed Login",
-			"error":   err.Error(),
-		})
+	var admins = []models.AdminResponse{
+		{ID: 1, Name: "Wahyu", Email: "admin@gmail.com", Password: "admin123"},
 	}
-	usersResponse := models.UserResponse{int(user.ID), user.Username, user.Email, token}
+	for _, a := range admins {
+		if a.Email == admin.Email && a.Password == admin.Password {
+			token, err := midleware.CreateToken(int(a.ID), a.Name, "admin")
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+					"message": "Failed Login",
+					"error":   err.Error(),
+				})
+			}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success Login",
-		"user":    usersResponse,
-	})
-
+			adminResponse := models.UserResponse{admin.ID, admin.Name, admin.Email, token}
+			return c.JSON(http.StatusOK, map[string]interface{}{
+				"message": "Login Admin Sukses",
+				"Admin":   adminResponse,
+			})
+		}
+	}
+	return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid username or password"})
 }

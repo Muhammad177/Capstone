@@ -28,7 +28,7 @@ func GetThreadsByID(ctx context.Context, id int) (models.Thread, error) {
 }
 
 func CreateThreads(ctx context.Context, thread models.Thread) (models.Thread, error) {
-	err := DB.WithContext(ctx).Create(&thread).Error
+	err := DB.WithContext(ctx).Preload("User").Create(&thread).Error
 
 	if err != nil {
 		return models.Thread{}, err
