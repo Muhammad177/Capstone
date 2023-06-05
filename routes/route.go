@@ -17,16 +17,17 @@ func New() *echo.Echo {
 	e.POST("/login", controller.LoginController)
 	e.POST("/login/admin", controller.LoginAdminController)
 	e.POST("/user", controller.CreateUserController)
-	e.GET("/image/:uuid", controller.GetImageHandler)
+
 	eJwt := e.Group("/jwt")
 	eJwt.Use(middleware.JWT([]byte(constant.SECRET_JWT)))
 	eJwt.PUT("/admin/:id", controller.UpdateUserAdminController)
 	eJwt.DELETE("/admin/:id", controller.DeleteUserAdminController)
 	eJwt.GET("/admin", controller.GetUsersAdminController)
 	eJwt.GET("/admin/:id", controller.GetUserByidAdminController)
-	eJwt.PUT("/user/:id", controller.UpdateUserController)
+	eJwt.PUT("/user", controller.UpdateUserController)
 	eJwt.DELETE("/user/:id", controller.DeleteUserController)
 	eJwt.GET("/user", controller.GetUserController)
+	eJwt.GET("/image", controller.GetImageHandler)
 	//confirm
 	NewThreadControllers(eJwt)
 
