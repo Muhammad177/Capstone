@@ -3,13 +3,13 @@ package controller
 import (
 	"Capstone/database"
 	"Capstone/midleware"
+	"Capstone/models"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
-
-	"Capstone/models"
-	"net/http"
+	"strings"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
@@ -54,8 +54,11 @@ func CreatePhoto(c echo.Context) (string, error) {
 		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
 	}
 
+	// Menghapus "uploads/" dari path file yang dikembalikan
+	filePath := strings.TrimPrefix(dstPath, "uploads/")
+
 	// Mengembalikan path file foto
-	return dstPath, nil
+	return filePath, nil
 }
 
 func CreateUserController(c echo.Context) error {

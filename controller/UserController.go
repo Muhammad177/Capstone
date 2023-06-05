@@ -100,12 +100,20 @@ func LoginController(c echo.Context) error {
 
 }
 func GetImageHandler(c echo.Context) error {
-	
 	// Dapatkan UUID gambar dari parameter permintaan
-	uuid := c.Param("uuid")
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	id := claims["user_id"].(float64)
+
+	var users models.User
+	if err := database.DB.Select("photo").Where("id = ?", id).First(&users).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
+	}
+
+	photo := users.Photo
 
 	// Construct the file path based on the UUID string
-	filePath := filepath.Join("uploads", uuid) // Folder "uploads" berada dalam direktori saat ini
+	filePath := filepath.Join("uploads", photo) // Folder "uploads" berada dalam direktori saat ini
 
 	// Dapatkan tipe MIME file
 	file, err := os.Open(filePath)
