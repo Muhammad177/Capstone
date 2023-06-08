@@ -40,7 +40,7 @@ func CreatePhoto(c echo.Context) (string, error) {
 	defer src.Close()
 
 	// Simpan file foto di direktori lokal
-	dstPath := "uploads/" + filename
+	dstPath := fmt.Sprintf("uploads/%s", filename)
 	dst, err := os.Create(dstPath)
 	if err != nil {
 		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
