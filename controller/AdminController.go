@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
 	"github.com/google/uuid"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/echo/v4"
@@ -48,7 +49,7 @@ func CreatePhoto(c echo.Context) (string, error) {
 
 	// Salin isi file foto yang diunggah ke file tujuan
 	if _, err = io.Copy(dst, src); err != nil {
-		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
+		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to save ")
 	}
 
 	// Mengembalikan path file foto
