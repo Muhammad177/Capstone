@@ -3,6 +3,8 @@ package database
 import (
 	"Capstone/models"
 	"fmt"
+	"log"
+	"os"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -10,48 +12,24 @@ import (
 
 var DB *gorm.DB
 
-func init() {
-	InitDB()
-	InitialMigration()
-}
-
-type Config struct {
-	DB_Username string
-	DB_Password string
-	DB_Port     string
-	DB_Host     string
-	DB_Name     string
-}
-
 func InitDB() {
-
-	config := Config{
-		DB_Username: "root",
-		DB_Password: "",
-		DB_Port:     "3306",
-		DB_Host:     "localhost",
-		DB_Name:     "capstone",
-	}
-
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
-		config.DB_Username,
-		config.DB_Password,
-		config.DB_Host,
-		config.DB_Port,
-		config.DB_Name,
-	)
-
 	var err error
-	DB, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
-}
 
-func InitialMigration() {
-	DB.AutoMigrate(
-		&models.User{},
-		&models.Thread{},
-		&models.Follow{},
+	var dsn string = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True",
+		os.Getenv("DB_USERNAME"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
 	)
+
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	if err != nil {
+		log.Fatalln("error: ", err)
+	}
+
+	DB.AutoMigrate(&models.User{}, &models.Thread{}, &models.Follow{})
+
+	log.Println("connected to the database")
 }

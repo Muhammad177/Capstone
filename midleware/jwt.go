@@ -2,7 +2,6 @@ package midleware
 
 import (
 	"Capstone/constant"
-	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -26,11 +25,10 @@ func ClaimsId(c echo.Context) (float64, error) {
 	id := claims["user_id"].(float64)
 	return id, nil
 }
-func ClaimsRole(c echo.Context) error {
+func ClaimsRole(c echo.Context) (string, error) {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
-	if claims["role"] != "admin" {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "only admin can access"})
-	}
-	return nil
+
+	role := claims["role"].(string)
+	return role, nil
 }

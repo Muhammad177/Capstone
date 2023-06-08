@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"Capstone/database"
+	"Capstone/midleware"
 	"Capstone/models"
 
 	"github.com/jinzhu/gorm"
@@ -12,6 +13,14 @@ import (
 )
 
 func GetThreadController(c echo.Context) error {
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
 	thread, err := database.GetThreads(c.Request().Context())
 
 	if err != nil {
@@ -26,6 +35,14 @@ func GetThreadController(c echo.Context) error {
 }
 
 func GetThreadsIDController(c echo.Context) error {
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -44,6 +61,18 @@ func GetThreadsIDController(c echo.Context) error {
 		"data":    thread,
 	})
 }
+func GetThreadControllerByTitle(c echo.Context) error {
+	title := c.QueryParam("title")
+	thread, err := database.GetThreadByTitle(c.Request().Context(), title)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Successfully retrieved thread by title",
+		"thread":  thread,
+	})
+}
 
 func CreateThreadsController(c echo.Context) error {
 	thread := models.Thread{}
@@ -60,7 +89,15 @@ func CreateThreadsController(c echo.Context) error {
 	})
 }
 
-func DeleteThreadsController(c echo.Context) error {
+func DeleteThreadsControllerAdmin(c echo.Context) error {
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -80,7 +117,15 @@ func DeleteThreadsController(c echo.Context) error {
 	})
 }
 
-func UpdateThreadsController(c echo.Context) error {
+func UpdateThreadsControllerAdmin(c echo.Context) error {
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -90,6 +135,66 @@ func UpdateThreadsController(c echo.Context) error {
 	c.Bind(&thread)
 
 	updateThread, err := database.UpdateThreads(c.Request().Context(), id, thread)
+	if err != nil {
+		if err == database.ErrInvalidID {
+			return echo.NewHTTPError(http.StatusNotFound, err.Error())
+		}
+
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success updating thread data",
+		"data":    updateThread,
+	})
+}
+
+func DeleteThreadsControllerUser(c echo.Context) error {
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	var users models.User
+	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	Id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	err = database.DeleteThreads(c.Request().Context(), Id)
+	if err != nil {
+		if err == database.ErrInvalidID {
+			return echo.NewHTTPError(http.StatusNotFound, err.Error())
+		}
+
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success deleting thread data",
+	})
+}
+
+func UpdateThreadsControllerUser(c echo.Context) error {
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	var users models.User
+	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	Id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	thread := models.Thread{}
+	c.Bind(&thread)
+
+	updateThread, err := database.UpdateThreads(c.Request().Context(), Id, thread)
 	if err != nil {
 		if err == database.ErrInvalidID {
 			return echo.NewHTTPError(http.StatusNotFound, err.Error())

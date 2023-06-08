@@ -9,9 +9,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
-
-	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/echo/v4"
@@ -54,11 +51,8 @@ func CreatePhoto(c echo.Context) (string, error) {
 		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
 	}
 
-	// Menghapus "uploads/" dari path file yang dikembalikan
-	filePath := strings.TrimPrefix(dstPath, "uploads/")
-
 	// Mengembalikan path file foto
-	return filePath, nil
+	return dstPath, nil
 }
 
 func CreateUserController(c echo.Context) error {
@@ -98,11 +92,15 @@ func CreateUserController(c echo.Context) error {
 	})
 }
 func UpdateUserAdminController(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	if claims["role"] != "admin" {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "only admin can access"})
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
+
 	id := c.Param("id")
 
 	var users models.User
@@ -124,7 +122,7 @@ func UpdateUserAdminController(c echo.Context) error {
 	}
 
 	// Check if new photo is uploaded
-	_, err := c.FormFile("photo")
+	_, err = c.FormFile("photo")
 	if err == nil {
 		// New photo is uploaded, execute CreatePhoto function
 		photoPath, err := CreatePhoto(c)
@@ -164,12 +162,17 @@ func UpdateUserAdminController(c echo.Context) error {
 		"user":    users,
 	})
 }
+
 func GetUserByidAdminController(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	if claims["role"] != "admin" {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "only admin can access"})
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
+
 	id := c.Param("id")
 	var users models.User
 	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
@@ -182,30 +185,36 @@ func GetUserByidAdminController(c echo.Context) error {
 	})
 }
 func GetUsersAdminController(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	if claims["role"] != "admin" {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "only admin can access"})
-	}
-	var users []models.User
-	err := database.DB.Find(&users).Error
-
+	role, err := midleware.ClaimsRole(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, map[string]interface{}{
-			"message": err.Error(),
-		})
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
+
+	var users []models.User
+	err = database.DB.Find(&users).Error
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve users from the database")
+	}
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"messages": "success get all users",
-		"users":    users,
+		"message": "Success: Retrieved all users",
+		"users":   users,
 	})
 }
 func DeleteUserAdminController(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	if claims["role"] != "admin" {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "only admin can access"})
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
+
 	id := c.Param("id")
 	var users models.User
 
@@ -221,10 +230,9 @@ func DeleteUserAdminController(c echo.Context) error {
 		}
 	}
 
-	if err := database.DB.Delete(&user).Error; err != nil {
+	if err := database.DB.Delete(&users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Success delete user by ID",
 		"user":    users,
