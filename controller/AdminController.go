@@ -16,19 +16,10 @@ import (
 )
 
 func CreatePhoto(c echo.Context) (string, error) {
-	// Check if a file photo is present in the request
-	_, err := c.FormFile("photo")
-	if err != nil {
-		return "", nil
-	}
 
 	// Menerima file foto dari permintaan
-	file, err := c.FormFile("photo")
-	if err != nil {
-		return "", echo.NewHTTPError(http.StatusBadRequest, "Failed to upload photo")
-	}
+	file, _ := c.FormFile("photo")
 
-	// Generate nama unik untuk file foto
 	ext := filepath.Ext(file.Filename)
 	filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
 
