@@ -9,8 +9,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func New() *echo.Echo {
-	e := echo.New()
+func Routes(e *echo.Echo) {
 
 	midleware.LogMiddleware(e)
 	// routing with query parameter
@@ -32,8 +31,6 @@ func New() *echo.Echo {
 	//confirm
 	NewThreadControllers(eJwt)
 
-	e.Logger.Fatal(e.Start(":8000"))
-	return e
 }
 
 func NewThreadControllers(e *echo.Group) {
