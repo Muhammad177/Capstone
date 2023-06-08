@@ -6,6 +6,7 @@ import (
 )
 
 func GetThreads(ctx context.Context) ([]models.Thread, error) {
+
 	var thread []models.Thread
 
 	err := DB.WithContext(ctx).Find(&thread).Error
@@ -22,6 +23,15 @@ func GetThreadsByID(ctx context.Context, id int) (models.Thread, error) {
 	err := DB.WithContext(ctx).Where("id = ?", id).First(&thread).Error
 	if err != nil {
 		return models.Thread{}, err
+	}
+
+	return thread, nil
+}
+func GetThreadByTitle(ctx context.Context, title string) (thread []models.Thread, err error) {
+	title = "%" + title + "%"
+	err = DB.WithContext(ctx).Where("title LIKE ? OR topic LIKE ?", title, title).Find(&thread).Error
+	if err != nil {
+		return thread, err
 	}
 
 	return thread, nil

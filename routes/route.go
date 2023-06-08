@@ -17,6 +17,7 @@ func New() *echo.Echo {
 	e.POST("/login", controller.LoginController)
 	e.POST("/login/admin", controller.LoginAdminController)
 	e.POST("/user", controller.CreateUserController)
+	e.GET("/threads", controller.GetThreadControllerByTitle)
 
 	eJwt := e.Group("/jwt")
 	eJwt.Use(middleware.JWT([]byte(constant.SECRET_JWT)))
@@ -25,7 +26,7 @@ func New() *echo.Echo {
 	eJwt.GET("/admin", controller.GetUsersAdminController)
 	eJwt.GET("/admin/:id", controller.GetUserByidAdminController)
 	eJwt.PUT("/user", controller.UpdateUserController)
-	eJwt.DELETE("/user/:id", controller.DeleteUserController)
+	eJwt.DELETE("/user", controller.DeleteUserController)
 	eJwt.GET("/user", controller.GetUserController)
 	eJwt.GET("/image", controller.GetImageHandler)
 	//confirm
@@ -36,9 +37,11 @@ func New() *echo.Echo {
 }
 
 func NewThreadControllers(e *echo.Group) {
-	e.GET("/threads", controller.GetThreadController)
+	e.GET("/admin/threads", controller.GetThreadController)
 	e.GET("/threads/:id", controller.GetThreadsIDController)
 	e.POST("/threads", controller.CreateThreadsController)
-	e.DELETE("/threads/:id", controller.DeleteThreadsController)
-	e.PUT("/threads/:id", controller.UpdateThreadsController)
+	e.DELETE("/admin/threads/:id", controller.DeleteThreadsControllerAdmin)
+	e.DELETE("/threads/:id", controller.DeleteThreadsControllerAdmin)
+	e.PUT("/admin/threads/:id", controller.UpdateThreadsControllerAdmin)
+	e.PUT("/threads/:id", controller.UpdateThreadsControllerAdmin)
 }
