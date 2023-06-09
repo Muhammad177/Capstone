@@ -7,6 +7,7 @@ import (
 	"mime"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"Capstone/models"
 	"net/http"
@@ -101,6 +102,40 @@ func LoginController(c echo.Context) error {
 	})
 
 }
+func LogoutController(c echo.Context) error {
+	tokenString := c.Request().Header.Get("Authorization")
+
+	// Memastikan header Authorization tidak kosong dan memiliki format "Bearer <token>"
+	if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
+		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
+			"message": "Invalid token",
+		})
+	}
+
+	// Mengambil token saja (tanpa "Bearer ")
+	token := strings.TrimPrefix(tokenString, "Bearer ")
+
+	// Mendekode token untuk mendapatkan user_id
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// Menghancurkan token
+	err = midleware.DestroyToken(token)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, map[string]interface{}{
+			"message": "Failed to destroy token",
+			"error":   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Logout successful",
+		"user_id": id,
+	})
+}
+
 func GetImageHandler(c echo.Context) error {
 	// Dapatkan UUID gambar dari parameter permintaan
 	id, err := midleware.ClaimsId(c)
