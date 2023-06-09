@@ -21,7 +21,8 @@ func GetThreadController(c echo.Context) error {
 	if role != "admin" {
 		return c.JSON(http.StatusUnauthorized, "Only admin can access")
 	}
-	thread, err := database.GetThreads(c.Request().Context())
+	title := c.QueryParam("title")
+	thread, err := database.GetThreads(c.Request().Context(), title)
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -59,18 +60,6 @@ func GetThreadsIDController(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success getting Thread",
 		"data":    thread,
-	})
-}
-func GetThreadControllerByTitle(c echo.Context) error {
-	title := c.QueryParam("title")
-	thread, err := database.GetThreadByTitle(c.Request().Context(), title)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "Successfully retrieved thread by title",
-		"thread":  thread,
 	})
 }
 

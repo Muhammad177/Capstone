@@ -5,11 +5,17 @@ import (
 	"context"
 )
 
-func GetThreads(ctx context.Context) ([]models.Thread, error) {
-
+func GetThreads(ctx context.Context, title string) ([]models.Thread, error) {
 	var thread []models.Thread
 
-	err := DB.WithContext(ctx).Find(&thread).Error
+	db := DB.WithContext(ctx).Model(models.Thread{})
+	print(title)
+	if title != "" {
+		q := "%" + title + "%"
+		db.Where("title LIKE ?", q)
+	}
+
+	err := db.Find(&thread).Error
 	if err != nil {
 		return nil, err
 	}
@@ -23,15 +29,6 @@ func GetThreadsByID(ctx context.Context, id int) (models.Thread, error) {
 	err := DB.WithContext(ctx).Where("id = ?", id).First(&thread).Error
 	if err != nil {
 		return models.Thread{}, err
-	}
-
-	return thread, nil
-}
-func GetThreadByTitle(ctx context.Context, title string) (thread []models.Thread, err error) {
-	title = "%" + title + "%"
-	err = DB.WithContext(ctx).Where("title LIKE ? OR topic LIKE ?", title, title).Find(&thread).Error
-	if err != nil {
-		return thread, err
 	}
 
 	return thread, nil
@@ -79,3 +76,5 @@ func UpdateThreads(ctx context.Context, id int, thread models.Thread) (interface
 
 	return thread, nil
 }
+
+//tes
