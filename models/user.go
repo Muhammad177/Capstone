@@ -13,6 +13,7 @@ type User struct {
 	Bio      string   `json:"bio" form:"bio"`
 	Role     string   `json:"role" form:"role"`
 	Threads  []Thread `json:"threads"`
+	Follows  []Follow `json:"follows"`
 }
 type UserResponse struct {
 	ID    int    `json:"id" form:"name"`

@@ -9,7 +9,8 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func Routes(e *echo.Echo) {
+func New() *echo.Echo {
+	e := echo.New()
 
 	midleware.LogMiddleware(e)
 	// routing with query parameter
@@ -21,6 +22,7 @@ func Routes(e *echo.Echo) {
 	eJwt := e.Group("/jwt")
 	eJwt.Use(middleware.JWT([]byte(constant.SECRET_JWT)))
 	eJwt.PUT("/admin/:id", controller.UpdateUserAdminController)
+	eJwt.POST("/logout", controller.LogoutController)
 	eJwt.DELETE("/admin/:id", controller.DeleteUserAdminController)
 	eJwt.GET("/admin", controller.GetUsersAdminController)
 	eJwt.GET("/admin/:id", controller.GetUserByidAdminController)
@@ -31,6 +33,8 @@ func Routes(e *echo.Echo) {
 	//confirm
 	NewThreadControllers(eJwt)
 
+	e.Logger.Fatal(e.Start(":8000"))
+	return e
 }
 
 func NewThreadControllers(e *echo.Group) {
