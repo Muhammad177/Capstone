@@ -76,5 +76,3 @@ func UpdateThreads(ctx context.Context, id int, thread models.Thread) (interface
 
 	return thread, nil
 }
-
-//tes
