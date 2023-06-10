@@ -25,3 +25,4 @@ func ConvertCommentToCommentResponse(comment *Comment) CommentResponse {
 		UserID:   comment.UserID,
 	}
 }
+

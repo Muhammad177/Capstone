@@ -26,12 +26,15 @@ func GetThreadController(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+	allThreads := make([]models.AllThread, len(thread))
+	for i, thread := range thread {
+		allThreads[i] = models.ConverThreadToAllThread(&thread)
+	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success getting Thread",
-		"data":    thread,
+		"message": "Success: Retrieved all threads",
+		"data":    allThreads,
 	})
-
 }
 
 func GetThreadsIDController(c echo.Context) error {

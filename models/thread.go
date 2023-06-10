@@ -14,8 +14,18 @@ type Thread struct {
 	User     User      `json:"user"`
 	Comments []Comment `json:"comment"`
 }
+type AllThread struct {
+	ID      uint    `gorm:"primary_key"`
+	Title   string  `json:"title" form:"title"`
+	Topic   string  `json:"topic" form:"topic"`
+	Content string  `json:"content" form:"content"`
+	File    string  `json:"file" form:"file"`
+	UserID  int     `json:"user_id" form:"user_id"`
+	User    AllUser `json:"user"`
+}
 
 type ThreadResponse struct {
+	ID       uint              `gorm:"primary_key"`
 	Title    string            `json:"title" form:"title"`
 	Topic    string            `json:"topic" form:"topic"`
 	Comments []CommentResponse `json:"comments"`
@@ -28,8 +38,21 @@ func ConvertThreadToThreadResponse(thread *Thread) ThreadResponse {
 	}
 
 	return ThreadResponse{
+		ID:       thread.ID,
 		Title:    thread.Title,
 		Topic:    thread.Topic,
 		Comments: comments,
+	}
+}
+func ConverThreadToAllThread(thread *Thread) AllThread {
+
+	return AllThread{
+		ID:      thread.ID,
+		Title:   thread.Title,
+		Topic:   thread.Topic,
+		Content: thread.Content,
+		File:    thread.File,
+		UserID:  thread.UserID,
+		User:    ConvertUserToAllUser(&thread.User),
 	}
 }
