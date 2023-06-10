@@ -9,7 +9,7 @@ func GetThreads(ctx context.Context) ([]models.Thread, error) {
 
 	var thread []models.Thread
 
-	err := DB.WithContext(ctx).Find(&thread).Error
+	err := DB.WithContext(ctx).Preload("Comment").Find(&thread).Error
 	if err != nil {
 		return nil, err
 	}

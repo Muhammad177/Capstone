@@ -32,7 +32,7 @@ func New() *echo.Echo {
 	eJwt.GET("/image", controller.GetImageHandler)
 	//confirm
 	NewThreadControllers(eJwt)
-
+	NewCommentControllers(eJwt)
 	e.Logger.Fatal(e.Start(":8000"))
 	return e
 }
@@ -45,4 +45,10 @@ func NewThreadControllers(e *echo.Group) {
 	e.DELETE("/threads/:id", controller.DeleteThreadsControllerAdmin)
 	e.PUT("/admin/threads/:id", controller.UpdateThreadsControllerAdmin)
 	e.PUT("/threads/:id", controller.UpdateThreadsControllerAdmin)
+}
+
+func NewCommentControllers(e *echo.Group) {
+	e.POST("/comment", controller.CreateCommentController)
+	e.DELETE("/comment/:id", controller.DeleteCommentsControllerUser)
+	e.PUT("/comment/:id", controller.UpdateCommentsControllerUser)
 }
