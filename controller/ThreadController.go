@@ -35,14 +35,6 @@ func GetThreadController(c echo.Context) error {
 }
 
 func GetThreadsIDController(c echo.Context) error {
-	role, err := midleware.ClaimsRole(c)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
-	}
-
-	if role != "admin" {
-		return c.JSON(http.StatusUnauthorized, "Only admin can access")
-	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -58,7 +50,7 @@ func GetThreadsIDController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success getting Thread",
-		"data":    thread,
+		"data":    models.ConvertThreadToThreadResponse(&thread),
 	})
 }
 func GetThreadControllerByTitle(c echo.Context) error {

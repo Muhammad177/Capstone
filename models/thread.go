@@ -16,13 +16,20 @@ type Thread struct {
 }
 
 type ThreadResponse struct {
-	Title string `json:"title" form:"title"`
-	Topic string `json:"topic" form:"topic"`
+	Title    string            `json:"title" form:"title"`
+	Topic    string            `json:"topic" form:"topic"`
+	Comments []CommentResponse `json:"comments"`
 }
 
 func ConvertThreadToThreadResponse(thread *Thread) ThreadResponse {
+	comments := make([]CommentResponse, len(thread.Comments))
+	for i, comment := range thread.Comments {
+		comments[i] = ConvertCommentToCommentResponse(&comment)
+	}
+
 	return ThreadResponse{
-		Title: thread.Title,
-		Topic: thread.Topic,
+		Title:    thread.Title,
+		Topic:    thread.Topic,
+		Comments: comments,
 	}
 }
