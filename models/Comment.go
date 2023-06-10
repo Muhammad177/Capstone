@@ -6,9 +6,10 @@ import (
 
 type Comment struct {
 	gorm.Model
+	Comment  string `json:"comment" form:"comment"`
 	ThreadID int    `json:"thread_id" form:"thread_id"`
 	Thread   Thread `json:"thread"`
 	UserID   int       `json:"user_id" form:"user_id"`
 	User     User      `json:"user"`
-	Comment  string `json:"comment" form:"comment"`
+	
 }

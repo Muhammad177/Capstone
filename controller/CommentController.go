@@ -11,11 +11,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-
 func CreateCommentController(c echo.Context) error {
 	Comment := models.Comment{}
 	c.Bind(&Comment)
-
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	Comment.UserID = int(id)
 	newComment, err := database.CreateComment(c.Request().Context(), Comment)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

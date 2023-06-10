@@ -77,7 +77,11 @@ func GetThreadControllerByTitle(c echo.Context) error {
 func CreateThreadsController(c echo.Context) error {
 	thread := models.Thread{}
 	c.Bind(&thread)
-
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	thread.UserID = int(id)
 	newThread, err := database.CreateThreads(c.Request().Context(), thread)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
