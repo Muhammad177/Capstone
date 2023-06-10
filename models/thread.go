@@ -23,7 +23,18 @@ type AllThread struct {
 	UserID  int     `json:"user_id" form:"user_id"`
 	User    AllUser `json:"user"`
 }
-
+type ThreadUser struct {
+	ID    uint   `gorm:"primary_key"`
+	Title string `json:"title" form:"title"`
+	Topic string `json:"topic" form:"topic"`
+}
+func ConvertThreadUser(thread *Thread) ThreadUser {
+	return ThreadUser{
+		ID: thread.ID,
+		Title: thread.Title,
+		Topic: thread.Topic,
+	}
+}
 type ThreadResponse struct {
 	ID       uint              `gorm:"primary_key"`
 	Title    string            `json:"title" form:"title"`

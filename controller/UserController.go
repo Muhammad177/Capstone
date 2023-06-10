@@ -28,10 +28,13 @@ func GetUserController(c echo.Context) error {
 	if err := database.DB.Preload("Threads").Where("id = ?", int(id)).Find(&users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
+	user := make([]models.AllUserFollow, len(users))
+	for i, users := range users {
+		user[i] = models.ConvertUserToAllUserFollow(&users)
+	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success get user info by id",
-		"user":    users,
+		"user":    user,
 	})
 }
 func UpdateUserController(c echo.Context) error {

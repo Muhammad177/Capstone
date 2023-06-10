@@ -24,7 +24,15 @@ type AllUser struct {
 	Bio      string `json:"bio" form:"bio"`
 }
 
-
+type AllUserFollow struct {
+	ID       uint         `gorm:"primary_key"`
+	Username string       `json:"username" form:"username"`
+	Email    string       `json:"email" form:"email"`
+	Photo    string       `json:"photo" form:"photo"`
+	Bio      string       `json:"bio" form:"bio"`
+	Threads  []ThreadUser `json:"threads"`
+	Follows  []Follow     `json:"follows"`
+}
 
 func ConvertUserToAllUser(user *User) AllUser {
 	return AllUser{
@@ -36,6 +44,22 @@ func ConvertUserToAllUser(user *User) AllUser {
 		Bio:      user.Bio,
 	}
 }
+func ConvertUserToAllUserFollow(user *User) AllUserFollow {
+	threads := make([]ThreadUser, len(user.Threads))
+	for i, thread := range user.Threads {
+		threads[i] = ConvertThreadUser(&thread)
+	}
+	return AllUserFollow{
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+		Photo:    user.Photo,
+		Bio:      user.Bio,
+		Threads:  threads,
+		Follows:  user.Follows,
+	}
+}
+
 type UserResponse struct {
 	ID    int    `json:"id" form:"name"`
 	Name  string `json:"name" form:"name"`
