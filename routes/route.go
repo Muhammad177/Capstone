@@ -36,6 +36,8 @@ func New() *echo.Echo {
 	NewThreadControllers(eJwt)
 	NewBookmarkedContoller(bookmark)
 
+	NewCommentControllers(eJwt)
+
 	e.Logger.Fatal(e.Start(":8000"))
 	return e
 }
@@ -54,4 +56,9 @@ func NewBookmarkedContoller(e *echo.Group) {
 	e.GET("", controller.GetSaveThreadController)
 	e.POST("", controller.CreateSaveThreadsController)
 	e.DELETE("/:id", controller.DeleteSaveThreadsController)
+}
+func NewCommentControllers(e *echo.Group) {
+	e.POST("/comment", controller.CreateCommentController)
+	e.DELETE("/comment/:id", controller.DeleteCommentsControllerUser)
+	e.PUT("/comment/:id", controller.UpdateCommentsControllerUser)
 }

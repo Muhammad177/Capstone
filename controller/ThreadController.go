@@ -21,29 +21,23 @@ func GetThreadController(c echo.Context) error {
 	if role != "admin" {
 		return c.JSON(http.StatusUnauthorized, "Only admin can access")
 	}
-	title := c.QueryParam("title")
-	thread, err := database.GetThreads(c.Request().Context(), title)
+	thread, err := database.GetThreads(c.Request().Context())
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+	allThreads := make([]models.AllThread, len(thread))
+	for i, thread := range thread {
+		allThreads[i] = models.ConverThreadToAllThread(&thread)
+	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success getting Thread",
-		"data":    thread,
+		"message": "Success: Retrieved all threads",
+		"data":    allThreads,
 	})
-
 }
 
 func GetThreadsIDController(c echo.Context) error {
-	role, err := midleware.ClaimsRole(c)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
-	}
-
-	if role != "admin" {
-		return c.JSON(http.StatusUnauthorized, "Only admin can access")
-	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -59,14 +53,30 @@ func GetThreadsIDController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success getting Thread",
-		"data":    thread,
+		"data":    models.ConvertThreadToThreadResponse(&thread),
+	})
+}
+func GetThreadControllerByTitle(c echo.Context) error {
+	title := c.QueryParam("title")
+	thread, err := database.GetThreadByTitle(c.Request().Context(), title)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Successfully retrieved thread by title",
+		"thread":  thread,
 	})
 }
 
 func CreateThreadsController(c echo.Context) error {
 	thread := models.Thread{}
 	c.Bind(&thread)
-
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	thread.UserID = int(id)
 	newThread, err := database.CreateThreads(c.Request().Context(), thread)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

@@ -28,7 +28,7 @@ func InitDB() {
 
 	config := Config{
 		DB_Username: "root",
-		DB_Password: "root",
+		DB_Password: "",
 		DB_Port:     "3306",
 		DB_Host:     "localhost",
 		DB_Name:     "capstone",
@@ -56,5 +56,6 @@ func InitialMigration() {
 		&models.User{},
 		&models.Thread{},
 		&models.Follow{},
+		&models.Comment{},
 	)
 }
