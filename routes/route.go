@@ -18,7 +18,7 @@ func New() *echo.Echo {
 	e.POST("/login/admin", controller.LoginAdminController)
 	e.POST("/user", controller.CreateUserController)
 
-	eJwt := e.Group("/jwt")
+	eJwt := e.Group("")
 	eJwt.Use(middleware.JWT([]byte(constant.SECRET_JWT)))
 	eJwt.PUT("/admin/:id", controller.UpdateUserAdminController)
 	eJwt.DELETE("/admin/:id", controller.DeleteUserAdminController)
@@ -29,8 +29,14 @@ func New() *echo.Echo {
 	eJwt.GET("/user", controller.GetUserController)
 	eJwt.GET("/image", controller.GetImageHandler)
 	//confirm
+
+	bookmark := eJwt.Group("/bookmark")
+
 	NewThreadControllers(eJwt)
+	NewBookmarkedContoller(bookmark)
+
 	NewCommentControllers(eJwt)
+
 	e.Logger.Fatal(e.Start(":8000"))
 	return e
 }
@@ -45,6 +51,11 @@ func NewThreadControllers(e *echo.Group) {
 	e.PUT("/threads/:id", controller.UpdateThreadsControllerAdmin)
 }
 
+func NewBookmarkedContoller(e *echo.Group) {
+	e.GET("", controller.GetSaveThreadController)
+	e.POST("", controller.CreateSaveThreadsController)
+	e.DELETE("/:id", controller.DeleteSaveThreadsController)
+}
 func NewCommentControllers(e *echo.Group) {
 	e.POST("/comment", controller.CreateCommentController)
 	e.DELETE("/comment/:id", controller.DeleteCommentsControllerUser)

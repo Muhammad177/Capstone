@@ -1,19 +1,20 @@
 package models
 
 import (
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type User struct {
 	gorm.Model
-	Username string   `json:"username" form:"username"`
-	Email    string   `json:"email" form:"email"`
-	Password string   `json:"password" form:"password"`
-	Photo    string   `json:"photo" form:"photo"`
-	Bio      string   `json:"bio" form:"bio"`
-	Role     string   `json:"role" form:"role"`
-	Threads  []Thread `json:"threads"`
-	Follows  []Follow `json:"follows"`
+	Username   string   `json:"username" form:"username"`
+	Email      string   `json:"email" form:"email"`
+	Password   string   `json:"password" form:"password"`
+	Photo      string   `json:"photo" form:"photo"`
+	Bio        string   `json:"bio" form:"bio"`
+	Role       string   `json:"role" form:"role"`
+	Threads    []Thread `json:"threads"`
+	Bookmarked []Thread `gorm:"many2many: thread_user_assoc"`
+	Follows    []Follow `json:"follows"`
 }
 type AllUser struct {
 	ID       uint   `gorm:"primary_key"`
