@@ -21,7 +21,6 @@ func New() *echo.Echo {
 	eJwt := e.Group("/jwt")
 	eJwt.Use(middleware.JWT([]byte(constant.SECRET_JWT)))
 	eJwt.PUT("/admin/:id", controller.UpdateUserAdminController)
-	eJwt.POST("/logout", controller.LogoutController)
 	eJwt.DELETE("/admin/:id", controller.DeleteUserAdminController)
 	eJwt.GET("/admin", controller.GetUsersAdminController)
 	eJwt.GET("/admin/:id", controller.GetUserByidAdminController)

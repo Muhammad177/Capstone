@@ -3,14 +3,12 @@ package controller
 import (
 	"Capstone/database"
 	"Capstone/midleware"
+	"Capstone/models"
 	"io/ioutil"
 	"mime"
+	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
-
-	"Capstone/models"
-	"net/http"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/echo/v4"
@@ -25,7 +23,7 @@ func GetUserController(c echo.Context) error {
 
 	// Fetch the user's information based on the user ID
 	var users []models.User
-	if err := database.DB.Preload("Threads").Where("id = ?", int(id)).Find(&users).Error; err != nil {
+	if err := database.DB.Preload("Threads").Preload("Follows").Where("id = ?", int(id)).Find(&users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	user := make([]models.AllUserFollow, len(users))
@@ -105,40 +103,6 @@ func LoginController(c echo.Context) error {
 	})
 
 }
-func LogoutController(c echo.Context) error {
-	tokenString := c.Request().Header.Get("Authorization")
-
-	// Memastikan header Authorization tidak kosong dan memiliki format "Bearer <token>"
-	if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
-		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
-			"message": "Invalid token",
-		})
-	}
-
-	// Mengambil token saja (tanpa "Bearer ")
-	token := strings.TrimPrefix(tokenString, "Bearer ")
-
-	// Mendekode token untuk mendapatkan user_id
-	id, err := midleware.ClaimsId(c)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	// Menghancurkan token
-	err = midleware.DestroyToken(token)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, map[string]interface{}{
-			"message": "Failed to destroy token",
-			"error":   err.Error(),
-		})
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "Logout successful",
-		"user_id": id,
-	})
-}
-
 func GetImageHandler(c echo.Context) error {
 	// Dapatkan UUID gambar dari parameter permintaan
 	id, err := midleware.ClaimsId(c)
