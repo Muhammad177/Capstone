@@ -3,13 +3,12 @@ package controller
 import (
 	"Capstone/database"
 	"Capstone/midleware"
+	"Capstone/models"
 	"io/ioutil"
 	"mime"
+	"net/http"
 	"os"
 	"path/filepath"
-
-	"Capstone/models"
-	"net/http"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/echo/v4"
@@ -24,13 +23,16 @@ func GetUserController(c echo.Context) error {
 
 	// Fetch the user's information based on the user ID
 	var users []models.User
-	if err := database.DB.Preload("Threads").Where("id = ?", int(id)).Find(&users).Error; err != nil {
+	if err := database.DB.Preload("Threads").Preload("Follows").Where("id = ?", int(id)).Find(&users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
+	user := make([]models.AllUserFollow, len(users))
+	for i, users := range users {
+		user[i] = models.ConvertUserToAllUserFollow(&users)
+	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success get user info by id",
-		"user":    users,
+		"user":    user,
 	})
 }
 func UpdateUserController(c echo.Context) error {

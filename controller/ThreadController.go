@@ -8,8 +8,8 @@ import (
 	"Capstone/midleware"
 	"Capstone/models"
 
-	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 func GetThreadController(c echo.Context) error {
@@ -26,23 +26,18 @@ func GetThreadController(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+	allThreads := make([]models.AllThread, len(thread))
+	for i, thread := range thread {
+		allThreads[i] = models.ConverThreadToAllThread(&thread)
+	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success getting Thread",
-		"data":    thread,
+		"message": "Success: Retrieved all threads",
+		"data":    allThreads,
 	})
-
 }
 
 func GetThreadsIDController(c echo.Context) error {
-	role, err := midleware.ClaimsRole(c)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
-	}
-
-	if role != "admin" {
-		return c.JSON(http.StatusUnauthorized, "Only admin can access")
-	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -58,7 +53,7 @@ func GetThreadsIDController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success getting Thread",
-		"data":    thread,
+		"data":    models.ConvertThreadToThreadResponse(&thread),
 	})
 }
 func GetThreadControllerByTitle(c echo.Context) error {
@@ -77,7 +72,11 @@ func GetThreadControllerByTitle(c echo.Context) error {
 func CreateThreadsController(c echo.Context) error {
 	thread := models.Thread{}
 	c.Bind(&thread)
-
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	thread.UserID = int(id)
 	newThread, err := database.CreateThreads(c.Request().Context(), thread)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

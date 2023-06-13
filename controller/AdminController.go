@@ -191,10 +191,13 @@ func GetUsersAdminController(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve users from the database")
 	}
-
+	allUsers := make([]models.AllUser, len(users))
+	for i, user := range users {
+		allUsers[i] = models.ConvertUserToAllUser(&user)
+	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Success: Retrieved all users",
-		"users":   users,
+		"users":   allUsers,
 	})
 }
 func DeleteUserAdminController(c echo.Context) error {
