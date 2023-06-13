@@ -34,4 +34,3 @@ func DeleteFollows(ctx context.Context, id int) error {
 
 	return nil
 }
-

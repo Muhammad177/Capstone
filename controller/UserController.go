@@ -23,7 +23,7 @@ func GetUserController(c echo.Context) error {
 
 	// Fetch the user's information based on the user ID
 	var users []models.User
-	if err := database.DB.Preload("Threads").Preload("Follows").Where("id = ?", int(id)).Find(&users).Error; err != nil {
+	if err := database.DB.Preload("Threads").Where("id = ?", int(id)).Find(&users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	user := make([]models.AllUserFollow, len(users))

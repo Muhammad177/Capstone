@@ -35,16 +35,12 @@ func DeleteCommentsControllerUser(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	var users models.User
-	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-	Id, err := strconv.Atoi(c.Param("id"))
+	commentID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	err = database.DeleteComments(c.Request().Context(), Id)
+	err = database.DeleteComments(c.Request().Context(), commentID, int(id))
 	if err != nil {
 		if err == database.ErrInvalidID {
 			return echo.NewHTTPError(http.StatusNotFound, err.Error())
@@ -63,11 +59,8 @@ func UpdateCommentsControllerUser(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	var users models.User
-	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-	Id, err := strconv.Atoi(c.Param("id"))
+
+	CId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -75,7 +68,7 @@ func UpdateCommentsControllerUser(c echo.Context) error {
 	Comment := models.Comment{}
 	c.Bind(&Comment)
 
-	updateComment, err := database.UpdateComments(c.Request().Context(), Id, Comment)
+	updateComment, err := database.UpdateComments(c.Request().Context(), int(id), CId, Comment)
 	if err != nil {
 		if err == database.ErrInvalidID {
 			return echo.NewHTTPError(http.StatusNotFound, err.Error())

@@ -14,11 +14,6 @@ import (
 func CreateFollowController(c echo.Context) error {
 	Follow := models.Follow{}
 	c.Bind(&Follow)
-	id, err := midleware.ClaimsId(c)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	Follow.UserID = int(id)
 	newFollow, err := database.CreateFollow(c.Request().Context(), Follow)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

@@ -14,7 +14,6 @@ type User struct {
 	Role       string   `json:"role" form:"role"`
 	Threads    []Thread `json:"threads"`
 	Bookmarked []Thread `gorm:"many2many: thread_user_assoc"`
-	Follows    []Follow `json:"follows"`
 }
 type AllUser struct {
 	ID       uint   `gorm:"primary_key"`
@@ -32,7 +31,6 @@ type AllUserFollow struct {
 	Photo    string       `json:"photo" form:"photo"`
 	Bio      string       `json:"bio" form:"bio"`
 	Threads  []ThreadUser `json:"threads"`
-	Follows  []Follow     `json:"follows"`
 }
 
 func ConvertUserToAllUser(user *User) AllUser {
@@ -57,7 +55,6 @@ func ConvertUserToAllUserFollow(user *User) AllUserFollow {
 		Photo:    user.Photo,
 		Bio:      user.Bio,
 		Threads:  threads,
-		Follows:  user.Follows,
 	}
 }
 
