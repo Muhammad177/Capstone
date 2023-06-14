@@ -12,7 +12,7 @@ func CreateFollow(ctx context.Context, Follow models.Follow) (models.Follow, err
 	}
 
 	// Preload user data for the created Follow
-	err = DB.WithContext(ctx).Preload("User").First(&Follow).Error
+	err = DB.WithContext(ctx).Preload("Thread").Preload("User").First(&Follow).Error
 	if err != nil {
 		return models.Follow{}, err
 	}
@@ -34,4 +34,3 @@ func DeleteFollows(ctx context.Context, id int) error {
 
 	return nil
 }
-

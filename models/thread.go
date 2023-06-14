@@ -12,8 +12,10 @@ type Thread struct {
 	File           string    `json:"file" form:"file"`
 	UserID         int       `json:"user_id" form:"user_id"`
 	User           User      `json:"user"`
+	Follows        []Follow  `json:"follow"`
 	Comments       []Comment `json:"comment"`
 	BookmarkedUser []User    `gorm:"many2many: thread_user_assoc"`
+	Like           []Like    `json:"like"`
 }
 type AllThread struct {
 	ID      uint    `gorm:"primary_key"`
