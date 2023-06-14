@@ -12,6 +12,12 @@ import (
 func New() *echo.Echo {
 	e := echo.New()
 
+	e.Use(middleware.CORS())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
+
 	midleware.LogMiddleware(e)
 	// routing with query parameter
 	e.POST("/login", controller.LoginController)
