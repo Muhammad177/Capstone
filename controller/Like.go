@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func CreateLikeThreads(c echo.Context) error {
+func CreateLikeController(c echo.Context) error {
 	user := c.Get("user").(models.User)
 	thread_id, _ := strconv.Atoi(c.Param("id"))
 
@@ -19,10 +19,12 @@ func CreateLikeThreads(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, "Liked")
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success Like thread",
+	})
 }
 
-func DeleteLikeThreads(c echo.Context) error {
+func DeleteLikeController(c echo.Context) error {
 	user := c.Get("user").(models.User)
 	thread_id, _ := strconv.Atoi(c.Param("id"))
 
@@ -31,10 +33,12 @@ func DeleteLikeThreads(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, "Unliked")
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success deleting Like data",
+	})
 }
 
-func GetLikeThreads(c echo.Context) error {
+func GetLikeController(c echo.Context) error {
 	user := c.Get("user").(models.User)
 
 	threads, err := database.GetLikeThreads(c.Request().Context(), int(user.ID))
@@ -42,5 +46,8 @@ func GetLikeThreads(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, threads)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success get Like data",
+		"data":    threads,
+	})
 }

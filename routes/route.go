@@ -71,3 +71,7 @@ func Follow(e *echo.Group) {
 	e.POST("/follow", controller.CreateFollowController)
 	e.DELETE("/follow/:id", controller.DeleteFollowsControllerUser)
 }
+func Like(e *echo.Group) {
+	e.POST("/like/:id", controller.CreateLikeController)
+	e.DELETE("/like/:id", controller.DeleteLikeController)
+}
