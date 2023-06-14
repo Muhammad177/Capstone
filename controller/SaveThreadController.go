@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"Capstone/dto"
 	"Capstone/midleware"
 	"strconv"
 
@@ -20,14 +21,13 @@ func GetSaveThreadController(c echo.Context) error {
 	}
 
 	svThread, err := database.GetSaveThreads(c.Request().Context(), int(id))
-
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success getting Bookmark",
-		"data":    svThread,
+		"data":    dto.NewGetBookmarksResponse(svThread),
 	})
 
 }
@@ -54,7 +54,7 @@ func CreateSaveThreadsController(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success creating thread",
+		"message": "success bookmark thread",
 		"data":    newSvThread,
 	})
 }
