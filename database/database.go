@@ -57,5 +57,6 @@ func InitialMigration() {
 		&models.Thread{},
 		&models.Follow{},
 		&models.Comment{},
+		&models.Like{},
 	)
 }

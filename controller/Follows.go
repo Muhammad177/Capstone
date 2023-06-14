@@ -25,7 +25,7 @@ func CreateFollowController(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success creating Follow",
+		"message": "success Follow thread",
 		"data":    newFollow,
 	})
 }

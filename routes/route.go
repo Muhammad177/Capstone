@@ -34,7 +34,7 @@ func New() *echo.Echo {
 
 	NewThreadControllers(eJwt)
 	NewBookmarkedContoller(bookmark)
-
+	Follow(eJwt)
 	NewCommentControllers(eJwt)
 
 	e.Logger.Fatal(e.Start(":8000"))
@@ -60,4 +60,8 @@ func NewCommentControllers(e *echo.Group) {
 	e.POST("/comment", controller.CreateCommentController)
 	e.DELETE("/comment/:id", controller.DeleteCommentsControllerUser)
 	e.PUT("/comment/:id", controller.UpdateCommentsControllerUser)
+}
+func Follow(e *echo.Group) {
+	e.POST("/follow", controller.CreateFollowController)
+	e.DELETE("/follow/:id", controller.DeleteFollowsControllerUser)
 }

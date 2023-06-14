@@ -10,11 +10,11 @@ type User struct {
 	Email      string   `json:"email" form:"email"`
 	Password   string   `json:"password" form:"password"`
 	Photo      string   `json:"photo" form:"photo"`
+	Age        int      `json:"age" form:"age"`
 	Bio        string   `json:"bio" form:"bio"`
 	Role       string   `json:"role" form:"role"`
 	Threads    []Thread `json:"threads"`
 	Bookmarked []Thread `gorm:"many2many: thread_user_assoc"`
-	Follows    []Follow `json:"follows"`
 }
 type AllUser struct {
 	ID       uint   `gorm:"primary_key"`
@@ -22,6 +22,7 @@ type AllUser struct {
 	Email    string `json:"email" form:"email"`
 	Password string `json:"password" form:"password"`
 	Photo    string `json:"photo" form:"photo"`
+	Age      int    `json:"age" form:"age"`
 	Bio      string `json:"bio" form:"bio"`
 }
 
@@ -30,9 +31,9 @@ type AllUserFollow struct {
 	Username string       `json:"username" form:"username"`
 	Email    string       `json:"email" form:"email"`
 	Photo    string       `json:"photo" form:"photo"`
+	Age      int          `json:"age" form:"age"`
 	Bio      string       `json:"bio" form:"bio"`
 	Threads  []ThreadUser `json:"threads"`
-	Follows  []Follow     `json:"follows"`
 }
 
 func ConvertUserToAllUser(user *User) AllUser {
@@ -42,6 +43,7 @@ func ConvertUserToAllUser(user *User) AllUser {
 		Email:    user.Email,
 		Password: user.Password,
 		Photo:    user.Photo,
+		Age:      user.Age,
 		Bio:      user.Bio,
 	}
 }
@@ -56,8 +58,8 @@ func ConvertUserToAllUserFollow(user *User) AllUserFollow {
 		Email:    user.Email,
 		Photo:    user.Photo,
 		Bio:      user.Bio,
+		Age:      user.Age,
 		Threads:  threads,
-		Follows:  user.Follows,
 	}
 }
 
