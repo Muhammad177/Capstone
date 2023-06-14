@@ -3,41 +3,44 @@ package controller
 import (
 	"Capstone/database"
 	"Capstone/midleware"
+	"Capstone/models"
 	"io/ioutil"
 	"mime"
+	"net/http"
 	"os"
 	"path/filepath"
 
-	"Capstone/models"
-	"net/http"
-
-	"github.com/golang-jwt/jwt"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/echo/v4"
 )
 
 func GetUserController(c echo.Context) error {
-	// Retrieve the JWT token from the request context and extract the role claim
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-
-	id := claims["user_id"].(string)
-	var users []models.User
-	if err := database.DB.Where("id = ?", id).Find(&users).Error; err != nil {
+	// Retrieve the user ID from the JWT token
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	// Fetch the user's information based on the user ID
+	var users []models.User
+	if err := database.DB.Preload("Threads").Where("id = ?", int(id)).Find(&users).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	user := make([]models.AllUserFollow, len(users))
+	for i, users := range users {
+		user[i] = models.ConvertUserToAllUserFollow(&users)
+	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success get user info by id",
-		"user":    users,
+		"user":    user,
 	})
 }
 func UpdateUserController(c echo.Context) error {
 	// Retrieve the JWT token from the request context and extract the role claim
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	id := claims["user_id"].(string)
-
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 	var users models.User
 	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
@@ -57,9 +60,10 @@ func UpdateUserController(c echo.Context) error {
 	})
 }
 func DeleteUserController(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	id := claims["user_id"].(string)
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 	var users models.User
 	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -73,7 +77,6 @@ func DeleteUserController(c echo.Context) error {
 		"Produk":  users,
 	})
 }
-
 func LoginController(c echo.Context) error {
 	user := models.User{}
 	c.Bind(&user)
@@ -100,14 +103,21 @@ func LoginController(c echo.Context) error {
 	})
 
 }
-
 func GetImageHandler(c echo.Context) error {
-	
 	// Dapatkan UUID gambar dari parameter permintaan
-	uuid := c.Param("uuid")
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	var users models.User
+	if err := database.DB.Select("photo").Where("id = ?", id).First(&users).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
+	}
+
+	photo := users.Photo
 
 	// Construct the file path based on the UUID string
-	filePath := filepath.Join("uploads", uuid) // Folder "uploads" berada dalam direktori saat ini
+	filePath := filepath.Join("uploads", photo) // Folder "uploads" berada dalam direktori saat ini
 
 	// Dapatkan tipe MIME file
 	file, err := os.Open(filePath)

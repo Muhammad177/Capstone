@@ -3,34 +3,23 @@ package controller
 import (
 	"Capstone/database"
 	"Capstone/midleware"
+	"Capstone/models"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 
-	"Capstone/models"
-	"net/http"
-
-	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/echo/v4"
 )
 
 func CreatePhoto(c echo.Context) (string, error) {
-	// Check if a file photo is present in the request
-	_, err := c.FormFile("photo")
-	if err != nil {
-		return "", nil
-	}
 
 	// Menerima file foto dari permintaan
-	file, err := c.FormFile("photo")
-	if err != nil {
-		return "", echo.NewHTTPError(http.StatusBadRequest, "Failed to upload photo")
-	}
+	file, _ := c.FormFile("photo")
 
-	// Generate nama unik untuk file foto
 	ext := filepath.Ext(file.Filename)
 	filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
 
@@ -42,7 +31,7 @@ func CreatePhoto(c echo.Context) (string, error) {
 	defer src.Close()
 
 	// Simpan file foto di direktori lokal
-	dstPath := "uploads/" + filename
+	dstPath := fmt.Sprintf("uploads/%s", filename)
 	dst, err := os.Create(dstPath)
 	if err != nil {
 		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
@@ -51,7 +40,7 @@ func CreatePhoto(c echo.Context) (string, error) {
 
 	// Salin isi file foto yang diunggah ke file tujuan
 	if _, err = io.Copy(dst, src); err != nil {
-		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
+		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to save ")
 	}
 
 	// Mengembalikan path file foto
@@ -95,11 +84,15 @@ func CreateUserController(c echo.Context) error {
 	})
 }
 func UpdateUserAdminController(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	if claims["role"] != "admin" {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "only admin can access"})
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
+
 	id := c.Param("id")
 
 	var users models.User
@@ -121,7 +114,7 @@ func UpdateUserAdminController(c echo.Context) error {
 	}
 
 	// Check if new photo is uploaded
-	_, err := c.FormFile("photo")
+	_, err = c.FormFile("photo")
 	if err == nil {
 		// New photo is uploaded, execute CreatePhoto function
 		photoPath, err := CreatePhoto(c)
@@ -161,12 +154,17 @@ func UpdateUserAdminController(c echo.Context) error {
 		"user":    users,
 	})
 }
+
 func GetUserByidAdminController(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	if claims["role"] != "admin" {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "only admin can access"})
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
+
 	id := c.Param("id")
 	var users models.User
 	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
@@ -179,30 +177,39 @@ func GetUserByidAdminController(c echo.Context) error {
 	})
 }
 func GetUsersAdminController(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	if claims["role"] != "admin" {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "only admin can access"})
-	}
-	var users []models.User
-	err := database.DB.Find(&users).Error
-
+	role, err := midleware.ClaimsRole(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, map[string]interface{}{
-			"message": err.Error(),
-		})
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
+
+	var users []models.User
+	err = database.DB.Find(&users).Error
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve users from the database")
+	}
+	allUsers := make([]models.AllUser, len(users))
+	for i, user := range users {
+		allUsers[i] = models.ConvertUserToAllUser(&user)
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"messages": "success get all users",
-		"users":    users,
+		"message": "Success: Retrieved all users",
+		"users":   allUsers,
 	})
 }
 func DeleteUserAdminController(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	if claims["role"] != "admin" {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "only admin can access"})
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
+
 	id := c.Param("id")
 	var users models.User
 
@@ -218,10 +225,9 @@ func DeleteUserAdminController(c echo.Context) error {
 		}
 	}
 
-	if err := database.DB.Delete(&user).Error; err != nil {
+	if err := database.DB.Delete(&users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Success delete user by ID",
 		"user":    users,
@@ -229,12 +235,12 @@ func DeleteUserAdminController(c echo.Context) error {
 }
 
 func LoginAdminController(c echo.Context) error {
-	admin := models.AdminResponse{ID: 1, Name: "Colo-colo", Email: "colo@gmail.com", Password: "colo123"}
+	admin := models.AdminResponse{ID: 1, Name: "Wahyu", Email: "admin@gmail.com", Password: "admin123"}
 	if err := c.Bind(&admin); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request"})
 	}
 	var admins = []models.AdminResponse{
-		{ID: 1, Name: "Colo-colo", Email: "colo@gmail.com", Password: "admin123"},
+		{ID: 1, Name: "Wahyu", Email: "admin@gmail.com", Password: "admin123"},
 	}
 	for _, a := range admins {
 		if a.Email == admin.Email && a.Password == admin.Password {
@@ -248,7 +254,7 @@ func LoginAdminController(c echo.Context) error {
 
 			adminResponse := models.UserResponse{admin.ID, admin.Name, admin.Email, token}
 			return c.JSON(http.StatusOK, map[string]interface{}{
-				"message": "Login Admin Sucsess",
+				"message": "Login Admin Sukses",
 				"Admin":   adminResponse,
 			})
 		}
