@@ -10,6 +10,7 @@ type User struct {
 	Email      string   `json:"email" form:"email"`
 	Password   string   `json:"password" form:"password"`
 	Photo      string   `json:"photo" form:"photo"`
+	Age        int      `json:"age" form:"age"`
 	Bio        string   `json:"bio" form:"bio"`
 	Role       string   `json:"role" form:"role"`
 	Threads    []Thread `json:"threads"`
@@ -21,6 +22,7 @@ type AllUser struct {
 	Email    string `json:"email" form:"email"`
 	Password string `json:"password" form:"password"`
 	Photo    string `json:"photo" form:"photo"`
+	Age      int    `json:"age" form:"age"`
 	Bio      string `json:"bio" form:"bio"`
 }
 
@@ -29,6 +31,7 @@ type AllUserFollow struct {
 	Username string       `json:"username" form:"username"`
 	Email    string       `json:"email" form:"email"`
 	Photo    string       `json:"photo" form:"photo"`
+	Age      int          `json:"age" form:"age"`
 	Bio      string       `json:"bio" form:"bio"`
 	Threads  []ThreadUser `json:"threads"`
 }
@@ -40,6 +43,7 @@ func ConvertUserToAllUser(user *User) AllUser {
 		Email:    user.Email,
 		Password: user.Password,
 		Photo:    user.Photo,
+		Age:      user.Age,
 		Bio:      user.Bio,
 	}
 }
@@ -54,6 +58,7 @@ func ConvertUserToAllUserFollow(user *User) AllUserFollow {
 		Email:    user.Email,
 		Photo:    user.Photo,
 		Bio:      user.Bio,
+		Age:      user.Age,
 		Threads:  threads,
 	}
 }

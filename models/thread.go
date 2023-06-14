@@ -15,6 +15,7 @@ type Thread struct {
 	Follows        []Follow  `json:"follow"`
 	Comments       []Comment `json:"comment"`
 	BookmarkedUser []User    `gorm:"many2many: thread_user_assoc"`
+	Like           []Like    `json:"like"`
 }
 type AllThread struct {
 	ID      uint    `gorm:"primary_key"`
