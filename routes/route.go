@@ -23,6 +23,7 @@ func New() *echo.Echo {
 	e.POST("/login", controller.LoginController)
 	e.POST("/login/admin", controller.LoginAdminController)
 	e.POST("/user", controller.CreateUserController)
+	e.POST("/uploadImage", controller.UploadImageController)
 
 	eJwt := e.Group("")
 	eJwt.Use(middleware.JWT([]byte(constant.SECRET_JWT)))
@@ -33,7 +34,6 @@ func New() *echo.Echo {
 	eJwt.PUT("/user", controller.UpdateUserController)
 	eJwt.DELETE("/user", controller.DeleteUserController)
 	eJwt.GET("/user", controller.GetUserController)
-	eJwt.GET("/image", controller.GetImageHandler)
 	//confirm
 
 	bookmark := eJwt.Group("/bookmark")

@@ -34,3 +34,13 @@ func DeleteFollows(ctx context.Context, id int) error {
 
 	return nil
 }
+func GetFollowsByID(ctx context.Context, id int) (models.Follow, error) {
+	var follow models.Follow
+
+	err := DB.WithContext(ctx).Preload("Thread").Where("id = ?", id).First(&follow).Error
+	if err != nil {
+		return models.Follow{}, err
+	}
+
+	return follow, nil
+}

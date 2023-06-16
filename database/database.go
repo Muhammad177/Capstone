@@ -3,7 +3,10 @@ package database
 import (
 	"Capstone/models"
 	"fmt"
+	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -12,6 +15,10 @@ import (
 var DB *gorm.DB
 
 func init() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("failed to load .env")
+	}
 	InitDB()
 	InitialMigration()
 }
@@ -27,11 +34,11 @@ type Config struct {
 func InitDB() {
 
 	config := Config{
-		DB_Username: "root",
-		DB_Password: "root",
-		DB_Port:     "3306",
-		DB_Host:     "db",
-		DB_Name:     "capstone",
+		DB_Username: os.Getenv("DB_USERNAME"),
+		DB_Password: os.Getenv("DB_PASSWORD"),
+		DB_Port:     os.Getenv("DB_PORT"),
+		DB_Host:     os.Getenv("DB_HOST"),
+		DB_Name:     os.Getenv("DB_NAME"),
 	}
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",

@@ -9,6 +9,7 @@ import (
 	"Capstone/models"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 func CreateFollowController(c echo.Context) error {
@@ -55,5 +56,24 @@ func DeleteFollowsControllerUser(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success deleting Follow data",
+	})
+}
+func GetFollowIDController(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	follow, err := database.GetFollowsByID(c.Request().Context(), id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, err.Error())
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success getting Thread",
+		"data":    follow,
 	})
 }

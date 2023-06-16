@@ -4,57 +4,11 @@ import (
 	"Capstone/database"
 	"Capstone/midleware"
 	"Capstone/models"
-	"fmt"
-	"io"
-	"net/http"
-	"os"
-	"path/filepath"
+	"net/http"	
 
-	"github.com/google/uuid"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/echo/v4"
 )
-
-func CreatePhoto(c echo.Context) (string, error) {
-	// Check if a file photo is present in the request
-	_, err := c.FormFile("photo")
-	if err != nil {
-		return "", nil
-	}
-
-	// Menerima file foto dari permintaan
-	file, err := c.FormFile("photo")
-	if err != nil {
-		return "", echo.NewHTTPError(http.StatusBadRequest, "Failed to upload photo")
-	}
-
-	// Generate nama unik untuk file foto
-	ext := filepath.Ext(file.Filename)
-	filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
-
-	// Buka file foto yang diunggah
-	src, err := file.Open()
-	if err != nil {
-		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to open photo")
-	}
-	defer src.Close()
-
-	// Simpan file foto di direktori lokal
-	dstPath := "uploads/" + filename
-	dst, err := os.Create(dstPath)
-	if err != nil {
-		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
-	}
-	defer dst.Close()
-
-	// Salin isi file foto yang diunggah ke file tujuan
-	if _, err = io.Copy(dst, src); err != nil {
-		return "", echo.NewHTTPError(http.StatusInternalServerError, "Failed to save photo")
-	}
-
-	// Mengembalikan path file foto
-	return dstPath, nil
-}
 
 func CreateUserController(c echo.Context) error {
 	// Bind data pengguna dari permintaan
@@ -70,16 +24,6 @@ func CreateUserController(c echo.Context) error {
 	}
 	// Set nilai default untuk role
 	user.Role = "User"
-
-	// Simpan foto pengguna
-	photoPath, err := CreatePhoto(c)
-	if err != nil {
-		return err
-	}
-
-	// Set path file foto pengguna
-	user.Photo = photoPath
-
 	// Simpan pengguna ke database
 	err = database.DB.Save(&user).Error
 	if err != nil {
@@ -121,40 +65,7 @@ func UpdateUserAdminController(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, "Email already exists")
 		}
 	}
-
-	// Check if new photo is uploaded
-	_, err = c.FormFile("photo")
-	if err == nil {
-		// New photo is uploaded, execute CreatePhoto function
-		photoPath, err := CreatePhoto(c)
-		if err != nil {
-			return err
-		}
-
-		// Delete previous photo
-		if users.Photo != "" {
-			if err := os.Remove(users.Photo); err != nil {
-				return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user photo")
-			}
-		}
-
-		users.Photo = photoPath
-	} else if err == http.ErrMissingFile {
-		// No new photo provided, check if existing photo needs to be deleted
-		if users.Photo != "" {
-			// Delete previous photo from database and local directory
-			if err := os.Remove(users.Photo); err != nil {
-				return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user photo")
-			}
-
-			users.Photo = ""
-		}
-	}
-
-	// Update the user in the database
-	if err := database.DB.Model(&users).Updates(map[string]interface{}{
-		"photo": users.Photo,
-	}).Error; err != nil {
+	if err := database.DB.Model(&users).Updates(users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
 	}
 
@@ -226,13 +137,6 @@ func DeleteUserAdminController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// Menghapus file foto terkait jika ada
-	if users.Photo != "" {
-		if err := os.Remove(users.Photo); err != nil {
-			// Jika gagal menghapus file, Anda dapat menangani kesalahan di sini
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user photo")
-		}
-	}
 
 	if err := database.DB.Delete(&users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
