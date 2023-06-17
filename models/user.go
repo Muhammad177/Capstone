@@ -9,7 +9,7 @@ type User struct {
 	Username   string   `json:"username" form:"username"`
 	Email      string   `json:"email" form:"email"`
 	Password   string   `json:"password" form:"password"`
-	Photo      string   `json:"photo" form:"photo"`
+	Image_url  string   `json:"image_url" form:"image_url"`
 	Age        int      `json:"age" form:"age"`
 	Bio        string   `json:"bio" form:"bio"`
 	Role       string   `json:"role" form:"role"`
@@ -17,34 +17,34 @@ type User struct {
 	Bookmarked []Thread `gorm:"many2many: thread_user_assoc"`
 }
 type AllUser struct {
-	ID       uint   `gorm:"primary_key"`
-	Username string `json:"username" form:"username"`
-	Email    string `json:"email" form:"email"`
-	Password string `json:"password" form:"password"`
-	Photo    string `json:"photo" form:"photo"`
-	Age      int    `json:"age" form:"age"`
-	Bio      string `json:"bio" form:"bio"`
+	ID        uint   `gorm:"primary_key"`
+	Username  string `json:"username" form:"username"`
+	Email     string `json:"email" form:"email"`
+	Password  string `json:"password" form:"password"`
+	Image_url string `json:"image_url" form:"image_url"`
+	Age       int    `json:"age" form:"age"`
+	Bio       string `json:"bio" form:"bio"`
 }
 
 type AllUserFollow struct {
-	ID       uint         `gorm:"primary_key"`
-	Username string       `json:"username" form:"username"`
-	Email    string       `json:"email" form:"email"`
-	Photo    string       `json:"photo" form:"photo"`
-	Age      int          `json:"age" form:"age"`
-	Bio      string       `json:"bio" form:"bio"`
-	Threads  []ThreadUser `json:"threads"`
+	ID        uint         `gorm:"primary_key"`
+	Username  string       `json:"username" form:"username"`
+	Email     string       `json:"email" form:"email"`
+	Image_url string       `json:"image_url" form:"image_url"`
+	Age       int          `json:"age" form:"age"`
+	Bio       string       `json:"bio" form:"bio"`
+	Threads   []ThreadUser `json:"threads"`
 }
 
 func ConvertUserToAllUser(user *User) AllUser {
 	return AllUser{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-		Password: user.Password,
-		Photo:    user.Photo,
-		Age:      user.Age,
-		Bio:      user.Bio,
+		ID:        user.ID,
+		Username:  user.Username,
+		Email:     user.Email,
+		Password:  user.Password,
+		Image_url: user.Image_url,
+		Age:       user.Age,
+		Bio:       user.Bio,
 	}
 }
 func ConvertUserToAllUserFollow(user *User) AllUserFollow {
@@ -53,13 +53,13 @@ func ConvertUserToAllUserFollow(user *User) AllUserFollow {
 		threads[i] = ConvertThreadUser(&thread)
 	}
 	return AllUserFollow{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-		Photo:    user.Photo,
-		Bio:      user.Bio,
-		Age:      user.Age,
-		Threads:  threads,
+		ID:        user.ID,
+		Username:  user.Username,
+		Email:     user.Email,
+		Image_url: user.Image_url,
+		Bio:       user.Bio,
+		Age:       user.Age,
+		Threads:   threads,
 	}
 }
 

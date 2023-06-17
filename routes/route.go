@@ -32,7 +32,6 @@ func SetupRoutes(e *echo.Echo) {
 	eJwt.PUT("/user", controller.UpdateUserController)
 	eJwt.DELETE("/user", controller.DeleteUserController)
 	eJwt.GET("/user", controller.GetUserController)
-	eJwt.GET("/image", controller.GetImageHandler)
 	//confirm
 
 	bookmark := eJwt.Group("/bookmark")
