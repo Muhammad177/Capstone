@@ -36,6 +36,23 @@ type AllUserFollow struct {
 	Threads   []ThreadUser `json:"threads"`
 }
 
+type AllUserSearch struct {
+	ID        uint   `gorm:"primary_key"`
+	Username  string `json:"username" form:"username"`
+	Image_url string `json:"image_url" form:"image_url"`
+	Age       int    `json:"age" form:"age"`
+	Bio       string `json:"bio" form:"bio"`
+}
+
+func ConvertAllUserSearch(user *User) AllUserSearch {
+	return AllUserSearch{
+		ID:        user.ID,
+		Username:  user.Username,
+		Image_url: user.Image_url,
+		Age:       user.Age,
+		Bio:       user.Bio,
+	}
+}
 func ConvertUserToAllUser(user *User) AllUser {
 	return AllUser{
 		ID:        user.ID,
