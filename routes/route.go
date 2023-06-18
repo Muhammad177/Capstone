@@ -46,7 +46,7 @@ func New() *echo.Echo {
 }
 
 func NewThreadControllers(e *echo.Group) {
-	e.GET("/admin/threads", controller.GetThreadController)
+	e.GET("/threads", controller.GetThreadController)
 	e.GET("/threads/:id", controller.GetThreadsIDController)
 	e.POST("/threads", controller.CreateThreadsController)
 	e.GET("/threads", controller.GetThreadControllerByTitle)
