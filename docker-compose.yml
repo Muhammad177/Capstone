@@ -26,8 +26,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=capstone
-    env_file:
-      - .env
+    ports:
+      - "3306:3306"
     networks:
       - db_main
     healthcheck:
