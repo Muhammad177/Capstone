@@ -6,7 +6,7 @@ type Follow struct {
 	gorm.Model
 	ThreadID int      `json:"thread_id" form:"thread_id"`
 	UserID   int      `json:"user_id" form:"user_id"`
-	Thread   []Thread `json:"thread"`
+	Thread   Thread `json:"thread"`
 }
 
 type Followrespon struct {
@@ -15,15 +15,15 @@ type Followrespon struct {
 	Thread   []ThreadUser `json:"thread"`
 }
 
-func ConvertFollow(Follow *Follow) Followrespon {
-	Follows := make([]ThreadUser, len(Follow.Thread))
-	for i, follow := range Follow.Thread {
-		Follows[i] = ConvertThreadUser(&follow)
-	}
+// func ConvertFollow(Follow *Follow) Followrespon {
+// 	Follows := make([]ThreadUser, len(Follow.Thread))
+// 	for i, follow := range Follow.Thread {
+// 		Follows[i] = ConvertThreadUser(&follow)
+// 	}
 
-	return Followrespon{
-		ThreadID: Follow.ThreadID,
-		UserID:   Follow.UserID,
-		Thread:   Follows,
-	}
-}
+// 	return Followrespon{
+// 		ThreadID: Follow.ThreadID,
+// 		UserID:   Follow.UserID,
+// 		Thread:   Follows,
+// 	}
+// }
