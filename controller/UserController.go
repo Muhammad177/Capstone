@@ -100,3 +100,27 @@ func LoginController(c echo.Context) error {
 
 }
 
+func GetAllUserController(c echo.Context) error {
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	if role != "User" {
+		return c.JSON(http.StatusUnauthorized, "Error Account")
+	}
+
+	var users []models.User
+	err = database.DB.Find(&users).Error
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve users from the database")
+	}
+	allUsers := make([]models.AllUserSearch, len(users))
+	for i, user := range users {
+		allUsers[i] = models.ConvertAllUserSearch(&user)
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Success: Retrieved all users",
+		"users":   allUsers,
+	})
+}

@@ -34,6 +34,7 @@ func New() *echo.Echo {
 	eJwt.PUT("/user", controller.UpdateUserController)
 	eJwt.DELETE("/user", controller.DeleteUserController)
 	eJwt.GET("/user", controller.GetUserController)
+	eJwt.GET("/Alluser", controller.GetAllUserController)
 	//confirm
 
 	bookmark := eJwt.Group("/bookmark")
@@ -55,6 +56,7 @@ func NewThreadControllers(e *echo.Group) {
 	e.DELETE("/threads/:id", controller.DeleteThreadsControllerAdmin)
 	e.PUT("/admin/threads/:id", controller.UpdateThreadsControllerAdmin)
 	e.PUT("/threads/:id", controller.UpdateThreadsControllerAdmin)
+	e.GET("/threads", controller.GetThreadControllerByTitle)
 }
 
 func NewBookmarkedContoller(e *echo.Group) {
