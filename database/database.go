@@ -3,10 +3,8 @@ package database
 import (
 	"Capstone/models"
 	"fmt"
-	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -15,10 +13,6 @@ import (
 var DB *gorm.DB
 
 func init() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("failed to load .env")
-	}
 	InitDB()
 	InitialMigration()
 }

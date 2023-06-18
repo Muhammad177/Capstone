@@ -4,14 +4,18 @@ import (
 	"Capstone/database"
 	"Capstone/routes"
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("failed to load .env")
+	if env := os.Getenv("ENV"); env != "production" {
+		log.Println(env)
+		err := godotenv.Load(".env")
+		if err != nil {
+			log.Fatal("failed to load .env")
+		}
 	}
 	database.InitDB()
 	e := routes.New()
