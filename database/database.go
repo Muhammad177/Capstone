@@ -12,7 +12,7 @@ import (
 
 var DB *gorm.DB
 
-func init() {
+func Init() {
 	InitDB()
 	InitialMigration()
 }
