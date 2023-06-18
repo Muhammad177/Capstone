@@ -9,7 +9,8 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func Routes(e *echo.Echo) {
+func New() *echo.Echo {
+	e := echo.New()
 
 	e.Use(middleware.CORS())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -40,7 +41,8 @@ func Routes(e *echo.Echo) {
 	NewBookmarkedContoller(bookmark)
 	Follow(eJwt)
 	NewCommentControllers(eJwt)
-
+	e.Logger.Fatal(e.Start(":8000"))
+	return e
 }
 
 func NewThreadControllers(e *echo.Group) {
@@ -67,4 +69,5 @@ func NewCommentControllers(e *echo.Group) {
 func Follow(e *echo.Group) {
 	e.POST("/follow", controller.CreateFollowController)
 	e.DELETE("/follow/:id", controller.DeleteFollowsControllerUser)
+	e.GET("/follow", controller.GetFollowIDController)
 }
