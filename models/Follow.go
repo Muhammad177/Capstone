@@ -4,9 +4,9 @@ import "github.com/jinzhu/gorm"
 
 type Follow struct {
 	gorm.Model
-	UserID   int    `json:"user_id" form:"user_id"`
-	ThreadID int    `json:"thread_id" form:"thread_id"`
-	Threads  Thread `json:"threads"`
+	UserID   int      `json:"user_id" form:"user_id"`
+	ThreadID int      `json:"thread_id" form:"thread_id"`
+	Threads  []Thread `gorm:"many2many:follow_threads;" json:"threads"`
 }
 
 type Followrespon struct {
@@ -15,15 +15,15 @@ type Followrespon struct {
 	Thread   []ThreadUser `json:"thread"`
 }
 
-// func ConvertFollow(Follow *Follow) Followrespon {
-// 	Follows := make([]ThreadUser, len(Follow.Threads))
-// 	for i, follow := range Follow.Threads {
-// 		Follows[i] = ConvertThreadUser(&follow)
-// 	}
+func ConvertFollow(Follow *Follow) Followrespon {
+	Follows := make([]ThreadUser, len(Follow.Threads))
+	for i, follow := range Follow.Threads {
+		Follows[i] = ConvertThreadUser(&follow)
+	}
 
-// 	return Followrespon{
-// 		ThreadID: Follow.ThreadID,
-// 		UserID:   Follow.UserID,
-// 		Thread:   Follows,
-// 	}
-// }
+	return Followrespon{
+		ThreadID: Follow.ThreadID,
+		UserID:   Follow.UserID,
+		Thread:   Follows,
+	}
+}

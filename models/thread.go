@@ -6,7 +6,7 @@ import (
 
 type Thread struct {
 	gorm.Model
-	Title          string    `json:"title" form:"title"`
+	Title          string    `json:"title" form:"title" validate:"required "`
 	Topic          string    `json:"topic" form:"topic"`
 	Content        string    `json:"content" form:"content"`
 	File           string    `json:"file" form:"file"`
@@ -15,6 +15,7 @@ type Thread struct {
 	Comments       []Comment `json:"comment"`
 	BookmarkedUser []User    `gorm:"many2many: thread_user_assoc"`
 	Like           []Like    `json:"like"`
+	Follows        []Follow  `gorm:"many2many:follow_threads;" json:"follows"`
 }
 type AllThread struct {
 	ID      uint    `gorm:"primary_key"`
