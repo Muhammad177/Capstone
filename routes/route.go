@@ -55,6 +55,7 @@ func NewThreadControllers(e *echo.Group) {
 	e.DELETE("/threads/:id", controller.DeleteThreadsControllerAdmin)
 	e.PUT("/admin/threads/:id", controller.UpdateThreadsControllerAdmin)
 	e.PUT("/threads/:id", controller.UpdateThreadsControllerAdmin)
+	e.GET("/threads", controller.GetThreadControllerByTitle)
 }
 
 func NewBookmarkedContoller(e *echo.Group) {
