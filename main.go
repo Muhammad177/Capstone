@@ -17,7 +17,7 @@ func main() {
 			log.Fatal("failed to load .env")
 		}
 	}
-	database.InitDB()
+	database.Init()
 	e := routes.New()
 	e.Start("8000")
 
