@@ -124,3 +124,27 @@ func GetAllUserController(c echo.Context) error {
 		"users":   allUsers,
 	})
 }
+func GetAllThreadUserController(c echo.Context) error {
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
+	thread, err := database.GetThreads(c.Request().Context())
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	allThreads := make([]models.AllThread, len(thread))
+	for i, thread := range thread {
+		allThreads[i] = models.ConverThreadToAllThread(&thread)
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Success: Retrieved all threads",
+		"data":    allThreads,
+	})
+}

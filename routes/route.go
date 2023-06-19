@@ -57,6 +57,7 @@ func NewThreadControllers(e *echo.Group) {
 	e.PUT("/admin/threads/:id", controller.UpdateThreadsControllerAdmin)
 	e.PUT("/threads/:id", controller.UpdateThreadsControllerAdmin)
 	e.GET("/threads", controller.GetThreadControllerByTitle)
+	e.GET("/Allthreads", controller.GetAllThreadUserController)
 }
 
 func NewBookmarkedContoller(e *echo.Group) {
