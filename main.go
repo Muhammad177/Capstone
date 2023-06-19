@@ -3,9 +3,7 @@ package main
 import (
 	"Capstone/database"
 	"Capstone/routes"
-
 )
-
 
 func main() {
 	database.InitDB()

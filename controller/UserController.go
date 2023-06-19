@@ -4,11 +4,7 @@ import (
 	"Capstone/database"
 	"Capstone/midleware"
 	"Capstone/models"
-	"io/ioutil"
-	"mime"
 	"net/http"
-	"os"
-	"path/filepath"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/echo/v4"
@@ -103,51 +99,4 @@ func LoginController(c echo.Context) error {
 	})
 
 }
-func GetImageHandler(c echo.Context) error {
-	// Dapatkan UUID gambar dari parameter permintaan
-	id, err := midleware.ClaimsId(c)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	var users models.User
-	if err := database.DB.Select("photo").Where("id = ?", id).First(&users).Error; err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
-	}
 
-	photo := users.Photo
-
-	// Construct the file path based on the UUID string
-	filePath := filepath.Join("uploads", photo) // Folder "uploads" berada dalam direktori saat ini
-
-	// Dapatkan tipe MIME file
-	file, err := os.Open(filePath)
-	if err != nil {
-		return c.String(http.StatusNotFound, "File not found")
-	}
-	defer file.Close()
-
-	// Baca awal file untuk mendapatkan tipe MIME
-	buffer := make([]byte, 512) // Membaca 512 byte pertama
-	_, err = file.Read(buffer)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, "Internal server error")
-	}
-
-	// Deteksi tipe MIME
-	mimeType := mime.TypeByExtension(filepath.Ext(filePath))
-	if mimeType == "" {
-		mimeType = http.DetectContentType(buffer)
-	}
-
-	// Set header Content-Type pada response
-	c.Response().Header().Set("Content-Type", mimeType)
-
-	// Baca file dengan ekstensi yang tepat
-	imageBytes, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, "Internal server error")
-	}
-
-	// Kirim data gambar sebagai response
-	return c.Blob(http.StatusOK, mimeType, imageBytes)
-}

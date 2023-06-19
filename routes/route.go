@@ -33,7 +33,6 @@ func New() *echo.Echo {
 	eJwt.PUT("/user", controller.UpdateUserController)
 	eJwt.DELETE("/user", controller.DeleteUserController)
 	eJwt.GET("/user", controller.GetUserController)
-	eJwt.GET("/image", controller.GetImageHandler)
 	//confirm
 
 	bookmark := eJwt.Group("/bookmark")
@@ -42,15 +41,15 @@ func New() *echo.Echo {
 	NewBookmarkedContoller(bookmark)
 	Follow(eJwt)
 	NewCommentControllers(eJwt)
-
 	e.Logger.Fatal(e.Start(":8000"))
 	return e
 }
 
 func NewThreadControllers(e *echo.Group) {
-	e.GET("/admin/threads", controller.GetThreadController)
+	e.GET("/threads", controller.GetThreadController)
 	e.GET("/threads/:id", controller.GetThreadsIDController)
 	e.POST("/threads", controller.CreateThreadsController)
+	e.GET("/threads", controller.GetThreadControllerByTitle)
 	e.DELETE("/admin/threads/:id", controller.DeleteThreadsControllerAdmin)
 	e.DELETE("/threads/:id", controller.DeleteThreadsControllerAdmin)
 	e.PUT("/admin/threads/:id", controller.UpdateThreadsControllerAdmin)
@@ -70,4 +69,5 @@ func NewCommentControllers(e *echo.Group) {
 func Follow(e *echo.Group) {
 	e.POST("/follow", controller.CreateFollowController)
 	e.DELETE("/follow/:id", controller.DeleteFollowsControllerUser)
+	e.GET("/follow", controller.GetFollowIDController)
 }
