@@ -130,8 +130,8 @@ func GetAllThreadUserController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
 
-	if role != "admin" {
-		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	if role != "User" {
+		return c.JSON(http.StatusUnauthorized, "Error Account")
 	}
 	thread, err := database.GetThreads(c.Request().Context())
 
