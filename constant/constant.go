@@ -1,3 +1,3 @@
 package constant
 
-const SECRET_JWT="123"
+const SECRET_JWT = "123"
