@@ -72,12 +72,6 @@ func GetThreadControllerByTitle(c echo.Context) error {
 func CreateThreadsController(c echo.Context) error {
 	thread := models.Thread{}
 	c.Bind(&thread)
-	if err := c.Validate(thread); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"messages": "error create thread",
-			"error":    err.Error(),
-		})
-	}
 	id, err := midleware.ClaimsId(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
