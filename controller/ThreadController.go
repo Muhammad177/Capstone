@@ -13,6 +13,14 @@ import (
 )
 
 func GetThreadController(c echo.Context) error {
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
 	thread, err := database.GetThreads(c.Request().Context())
 
 	if err != nil {

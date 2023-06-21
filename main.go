@@ -3,12 +3,10 @@ package main
 import (
 	"Capstone/database"
 	"Capstone/routes"
-
 	"log"
 	"os"
 
 	"github.com/joho/godotenv"
-
 )
 
 func main() {
