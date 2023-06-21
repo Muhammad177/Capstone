@@ -74,7 +74,7 @@ func CreateThreadsController(c echo.Context) error {
 	c.Bind(&thread)
 	if err := c.Validate(thread); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"messages": "error payload create user",
+			"messages": "error create thread",
 			"error":    err.Error(),
 		})
 	}
@@ -138,12 +138,6 @@ func UpdateThreadsControllerAdmin(c echo.Context) error {
 
 	thread := models.Thread{}
 	c.Bind(&thread)
-	if err := c.Validate(thread); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"messages": "error  create thread user",
-			"error":    err.Error(),
-		})
-	}
 	updateThread, err := database.UpdateThreads(c.Request().Context(), id, thread)
 	if err != nil {
 		if err == database.ErrInvalidID {
@@ -203,7 +197,6 @@ func UpdateThreadsControllerUser(c echo.Context) error {
 
 	thread := models.Thread{}
 	c.Bind(&thread)
-
 	updateThread, err := database.UpdateThreads(c.Request().Context(), Id, thread)
 	if err != nil {
 		if err == database.ErrInvalidID {
