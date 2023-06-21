@@ -10,7 +10,7 @@ type Thread struct {
 	Content        string    `json:"content" form:"content" validate:"required"`
 	File           string    `json:"file" form:"file"`
 	UserID         int       `json:"user_id" form:"user_id" validate:"required"`
-	User           User      `json:"user"`
+	User           User      `json:"user,omitempty"`
 	Comments       []Comment `json:"comment"`
 	BookmarkedUser []User    `gorm:"many2many: thread_user_assoc"`
 	Like           []Like    `json:"like"`
