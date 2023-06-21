@@ -4,7 +4,9 @@ import (
 	"Capstone/database"
 	"Capstone/midleware"
 	"Capstone/models"
+
 	"net/http"
+
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/echo/v4"
@@ -147,6 +149,7 @@ func DeleteUserAdminController(c echo.Context) error {
 	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
 
 	if err := database.DB.Delete(&users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

@@ -3,8 +3,10 @@ module Capstone
 go 1.20
 
 require (
+
 	github.com/cloudinary/cloudinary-go/v2 v2.2.0
 	github.com/go-playground/validator/v10 v10.14.1
+
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/jinzhu/gorm v1.9.16
 	github.com/labstack/echo/v4 v4.10.2
@@ -13,6 +15,7 @@ require (
 )
 
 require (
+
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
