@@ -6,10 +6,10 @@ import (
 
 type Comment struct {
 	gorm.Model
-	Comment  string `json:"comment" form:"comment"`
-	ThreadID int    `json:"thread_id" form:"thread_id"`
+	Comment  string `json:"comment" form:"comment" validate:"required"`
+	ThreadID int    `json:"thread_id" form:"thread_id" validate:"required"`
 	Thread   Thread `json:"thread"`
-	UserID   int    `json:"user_id" form:"user_id"`
+	UserID   int    `json:"user_id" form:"user_id" validate:"required"`
 	User     User   `json:"user"`
 }
 type CommentResponse struct {
@@ -25,4 +25,3 @@ func ConvertCommentToCommentResponse(comment *Comment) CommentResponse {
 		UserID:   comment.UserID,
 	}
 }
-

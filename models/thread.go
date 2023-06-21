@@ -6,10 +6,10 @@ import (
 
 type Thread struct {
 	gorm.Model
-	Title          string    `json:"title" form:"title"`
-	Content        string    `json:"content" form:"content"`
+	Title          string    `json:"title" form:"title" validate:"required"`
+	Content        string    `json:"content" form:"content" validate:"required"`
 	File           string    `json:"file" form:"file"`
-	UserID         int       `json:"user_id" form:"user_id"`
+	UserID         int       `json:"user_id" form:"user_id" validate:"required"`
 	User           User      `json:"user"`
 	Comments       []Comment `json:"comment"`
 	BookmarkedUser []User    `gorm:"many2many: thread_user_assoc"`

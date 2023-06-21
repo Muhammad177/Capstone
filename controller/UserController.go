@@ -45,6 +45,12 @@ func UpdateUserController(c echo.Context) error {
 	if err := c.Bind(&users); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
 	}
+	if err := c.Validate(users); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"messages": "error update user",
+			"error":    err.Error(),
+		})
+	}
 
 	if err := database.DB.Model(&users).Updates(users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
