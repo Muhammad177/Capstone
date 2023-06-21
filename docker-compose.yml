@@ -5,6 +5,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - ENV=production
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - DB_NAME=capstone
+      - CLOUDINARY_URL=cloudinary://864167348632296:BWJBloyOSCLs6Zfi9pPxvDQ_TlY@dwvq529jy 
     ports:
       - "8000:8000"
     networks:
@@ -18,6 +26,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=capstone
+    ports:
+      - "3306:3306"
     networks:
       - db_main
     healthcheck:

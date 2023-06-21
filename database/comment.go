@@ -52,3 +52,26 @@ func UpdateComments(ctx context.Context, userID int, id int, Comment models.Comm
 
 	return Comment, nil
 }
+
+func GetComments(ctx context.Context) ([]models.Comment, error) {
+
+	var comment []models.Comment
+
+	err := DB.WithContext(ctx).Preload("User").Preload("Thread").Find(&comment).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return comment, nil
+}
+
+func GetCommentID(ctx context.Context, id int) (models.Comment, error) {
+	var comment models.Comment
+
+	err := DB.WithContext(ctx).Preload("User").Preload("Thread").Where("id = ?", id).First(&comment).Error
+	if err != nil {
+		return models.Comment{}, err
+	}
+
+	return comment, nil
+}

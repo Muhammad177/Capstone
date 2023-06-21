@@ -13,7 +13,7 @@ func CreateToken(userID int, name string, role string) (string, error) {
 	claims["user_id"] = userID
 	claims["name"] = name
 	claims["role"] = role
-	claims["exp"] = time.Now().Add(time.Hour * 3).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(constant.SECRET_JWT))

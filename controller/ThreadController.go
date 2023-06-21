@@ -124,7 +124,6 @@ func UpdateThreadsControllerAdmin(c echo.Context) error {
 
 	thread := models.Thread{}
 	c.Bind(&thread)
-
 	updateThread, err := database.UpdateThreads(c.Request().Context(), id, thread)
 	if err != nil {
 		if err == database.ErrInvalidID {
@@ -184,7 +183,6 @@ func UpdateThreadsControllerUser(c echo.Context) error {
 
 	thread := models.Thread{}
 	c.Bind(&thread)
-
 	updateThread, err := database.UpdateThreads(c.Request().Context(), Id, thread)
 	if err != nil {
 		if err == database.ErrInvalidID {

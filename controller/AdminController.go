@@ -4,7 +4,9 @@ import (
 	"Capstone/database"
 	"Capstone/midleware"
 	"Capstone/models"
-	"net/http"	
+
+	"net/http"
+
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/echo/v4"
@@ -14,6 +16,12 @@ func CreateUserController(c echo.Context) error {
 	// Bind data pengguna dari permintaan
 	user := models.User{}
 	err := c.Bind(&user)
+	if err := c.Validate(user); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"messages": "error create user",
+			"error":    err.Error(),
+		})
+	}
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
 	}
@@ -58,7 +66,12 @@ func UpdateUserAdminController(c echo.Context) error {
 	if err := c.Bind(&users); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
 	}
-
+	if err := c.Validate(users); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"messages": "error Update user",
+			"error":    err.Error(),
+		})
+	}
 	if previousEmail != users.Email {
 		var existingUser models.User
 		if err := database.DB.Where("email = ?", users.Email).First(&existingUser).Error; err == nil {

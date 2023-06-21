@@ -45,6 +45,12 @@ func UpdateUserController(c echo.Context) error {
 	if err := c.Bind(&users); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
 	}
+	if err := c.Validate(users); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"messages": "error update user",
+			"error":    err.Error(),
+		})
+	}
 
 	if err := database.DB.Model(&users).Updates(users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
@@ -98,5 +104,55 @@ func LoginController(c echo.Context) error {
 		"user":    usersResponse,
 	})
 
+}
+
+
+func GetAllUserController(c echo.Context) error {
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	if role != "User" {
+		return c.JSON(http.StatusUnauthorized, "Error Account")
+	}
+
+	var users []models.User
+	err = database.DB.Find(&users).Error
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve users from the database")
+	}
+	allUsers := make([]models.AllUserSearch, len(users))
+	for i, user := range users {
+		allUsers[i] = models.ConvertAllUserSearch(&user)
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Success: Retrieved all users",
+		"users":   allUsers,
+	})
+}
+func GetAllThreadUserController(c echo.Context) error {
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	if role != "User" {
+		return c.JSON(http.StatusUnauthorized, "Error Account")
+	}
+	thread, err := database.GetThreads(c.Request().Context())
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	allThreads := make([]models.AllThread, len(thread))
+	for i, thread := range thread {
+		allThreads[i] = models.ConverThreadToAllThread(&thread)
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Success: Retrieved all threads",
+		"data":    allThreads,
+	})
 }
 
