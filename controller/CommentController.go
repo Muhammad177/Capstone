@@ -15,12 +15,6 @@ import (
 func CreateCommentController(c echo.Context) error {
 	Comment := models.Comment{}
 	c.Bind(&Comment)
-	if err := c.Validate(Comment); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"messages": "error create thread",
-			"error":    err.Error(),
-		})
-	}
 	id, err := midleware.ClaimsId(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -74,13 +68,6 @@ func UpdateCommentsControllerUser(c echo.Context) error {
 
 	Comment := models.Comment{}
 	c.Bind(&Comment)
-	if err := c.Validate(Comment); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"messages": "error Update Comment user",
-			"error":    err.Error(),
-		})
-	}
-
 	updateComment, err := database.UpdateComments(c.Request().Context(), int(id), CId, Comment)
 	if err != nil {
 		if err == database.ErrInvalidID {

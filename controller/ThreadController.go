@@ -70,6 +70,14 @@ func GetThreadControllerByTitle(c echo.Context) error {
 }
 
 func CreateThreadsController(c echo.Context) error {
+	Allthread := models.AllThread{}
+	c.Bind(&Allthread)
+	if err := c.Validate(Allthread); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"messages": "error create thread",
+			"error":    err.Error(),
+		})
+	}
 	thread := models.Thread{}
 	c.Bind(&thread)
 	id, err := midleware.ClaimsId(c)
