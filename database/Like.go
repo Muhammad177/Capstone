@@ -58,4 +58,4 @@ func GetLikeThreads(ctx context.Context, user_id int) ([]models.Thread, error) {
 	}
 
 	return threads, nil
-}
+

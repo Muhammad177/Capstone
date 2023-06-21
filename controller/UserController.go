@@ -106,6 +106,7 @@ func LoginController(c echo.Context) error {
 
 }
 
+
 func GetAllUserController(c echo.Context) error {
 	role, err := midleware.ClaimsRole(c)
 	if err != nil {
@@ -154,3 +155,4 @@ func GetAllThreadUserController(c echo.Context) error {
 		"data":    allThreads,
 	})
 }
+
