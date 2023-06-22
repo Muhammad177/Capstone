@@ -182,5 +182,29 @@ func LoginAdminController(c echo.Context) error {
 			})
 		}
 	}
+
+	user := models.User{}
+	c.Bind(&user)
+	if err := database.DB.Where("email = ? AND password = ?", user.Email, user.Password).First(&user).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
+			"message": "Failed Login",
+			"error":   err.Error(),
+		})
+	}
+
+	token, err := midleware.CreateToken(int(user.ID), user.Username, user.Role)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": "Failed Login",
+			"error":   err.Error(),
+		})
+	}
+	usersResponse := models.UserResponse{int(user.ID), user.Username, user.Email, token}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success Login Admin",
+		"user":    usersResponse,
+	})
 	return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid username or password"})
 }

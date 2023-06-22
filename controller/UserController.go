@@ -51,7 +51,7 @@ func UpdateUserController(c echo.Context) error {
 			"error":    err.Error(),
 		})
 	}
-
+	users.Role = "User"
 	if err := database.DB.Model(&users).Updates(users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
 	}
