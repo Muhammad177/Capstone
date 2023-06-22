@@ -9,7 +9,7 @@ type Thread struct {
 	Title          string    `json:"title" form:"title" validate:"required"`
 	Content        string    `json:"content" form:"content" validate:"required"`
 	File           string    `json:"file" form:"file"`
-	UserID         int       `json:"user_id" form:"user_id" validate:"required"`
+	UserID         int       `json:"user_id" form:"user_id"`
 	User           User      `json:"user"`
 	Comments       []Comment `json:"comment"`
 	BookmarkedUser []User    `gorm:"many2many: thread_user_assoc"`
@@ -20,7 +20,7 @@ type AllThread struct {
 	Title   string  `json:"title" form:"title" validate:"required"`
 	Content string  `json:"content" form:"content" validate:"required"`
 	File    string  `json:"file" form:"file"`
-	UserID  int     `json:"user_id" form:"user_id" validate:"required"`
+	UserID  int     `json:"user_id" form:"user_id"`
 	User    AllUser `json:"user"`
 }
 type ThreadUser struct {
