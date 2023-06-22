@@ -89,6 +89,7 @@ func NewCommentControllers(e *echo.Group) {
 func Follow(e *echo.Group) {
 	e.POST("/follow", controller.CreateFollowController)
 	e.DELETE("/follow/:id", controller.DeleteFollowsControllerUser)
+	e.GET("/follow", controller.GetFollowIDController)
 }
 func Like(e *echo.Group) {
 	e.POST("/like", controller.CreateLikeController)

@@ -59,12 +59,12 @@ func DeleteFollowsControllerUser(c echo.Context) error {
 	})
 }
 func GetFollowIDController(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := midleware.ClaimsId(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	follow, err := database.GetFollowsByID(c.Request().Context(), id)
+	follow, err := database.GetFollowsByID(c.Request().Context(), int(id))
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return echo.NewHTTPError(http.StatusNotFound, err.Error())
