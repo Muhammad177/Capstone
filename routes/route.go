@@ -40,6 +40,7 @@ func New() *echo.Echo {
 	eJwt := e.Group("")
 	eJwt.Use(middleware.JWT([]byte(constant.SECRET_JWT)))
 	eJwt.PUT("/admin/:id", controller.UpdateUserAdminController)
+	eJwt.PUT("/admin", controller.UpdateDataAdminController)
 	eJwt.DELETE("/admin/:id", controller.DeleteUserAdminController)
 	eJwt.GET("/admin", controller.GetUsersAdminController)
 	eJwt.GET("/admin/:id", controller.GetUserByidAdminController)
@@ -70,6 +71,7 @@ func NewThreadControllers(e *echo.Group) {
 	e.PUT("/threads/:id", controller.UpdateThreadsControllerUser)
 	e.GET("/threads", controller.GetThreadControllerByTitle)
 	e.GET("/Allthreads", controller.GetAllThreadUserController)
+
 }
 
 func NewBookmarkedContoller(e *echo.Group) {

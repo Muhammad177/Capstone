@@ -85,6 +85,51 @@ func UpdateUserAdminController(c echo.Context) error {
 		"user":    users,
 	})
 }
+func UpdateDataAdminController(c echo.Context) error {
+	role, err := midleware.ClaimsRole(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	if role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
+
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	var users models.User
+	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
+	}
+
+	previousEmail := users.Email
+
+	if err := c.Bind(&users); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
+	}
+	if err := c.Validate(users); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"messages": "error Update user",
+			"error":    err.Error(),
+		})
+	}
+	if previousEmail != users.Email {
+		var existingUser models.User
+		if err := database.DB.Where("email = ?", users.Email).First(&existingUser).Error; err == nil {
+			return echo.NewHTTPError(http.StatusBadRequest, "Email already exists")
+		}
+	}
+	if err := database.DB.Model(&users).Updates(users).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "User updated successfully",
+		"user":    users,
+	})
+}
 
 func GetUserByidAdminController(c echo.Context) error {
 	role, err := midleware.ClaimsRole(c)
@@ -206,5 +251,4 @@ func LoginAdminController(c echo.Context) error {
 		"message": "success Login Admin",
 		"user":    usersResponse,
 	})
-	return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid username or password"})
 }
