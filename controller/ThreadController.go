@@ -63,6 +63,13 @@ func GetThreadControllerByTitle(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	if len(thread) == 0 {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "Record not found",
+			"thread":  thread,
+		})
+	}
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Successfully retrieved thread by title",
 		"thread":  thread,
