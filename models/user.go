@@ -10,7 +10,7 @@ type User struct {
 	Email      string   `json:"email" form:"email" validate:"required,email"`
 	Password   string   `json:"password" form:"password" validate:"required,min=6"`
 	Image_url  string   `json:"image_url" form:"image_url"`
-	Age        int      `json:"age" form:"age" validate:"required"`
+	Age        int      `json:"age" form:"age"`
 	Bio        string   `json:"bio" form:"bio"`
 	Role       string   `json:"role" form:"role"`
 	Threads    []Thread `json:"threads"`

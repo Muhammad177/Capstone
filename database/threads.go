@@ -29,7 +29,7 @@ func GetThreadsByID(ctx context.Context, id int) (models.Thread, error) {
 }
 func GetThreadByTitle(ctx context.Context, title string) (thread []models.Thread, err error) {
 	title = "%" + title + "%"
-	err = DB.WithContext(ctx).Where("title LIKE ? OR topic LIKE ?", title, title).Find(&thread).Error
+	err = DB.WithContext(ctx).Where("title LIKE ?", title).Find(&thread).Error
 	if err != nil {
 		return thread, err
 	}

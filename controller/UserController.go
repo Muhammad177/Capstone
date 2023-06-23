@@ -51,7 +51,7 @@ func UpdateUserController(c echo.Context) error {
 			"error":    err.Error(),
 		})
 	}
-
+	users.Role = "User"
 	if err := database.DB.Model(&users).Updates(users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
 	}
@@ -106,7 +106,6 @@ func LoginController(c echo.Context) error {
 
 }
 
-
 func GetAllUserController(c echo.Context) error {
 	role, err := midleware.ClaimsRole(c)
 	if err != nil {
@@ -155,4 +154,3 @@ func GetAllThreadUserController(c echo.Context) error {
 		"data":    allThreads,
 	})
 }
-

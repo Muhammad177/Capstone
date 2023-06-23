@@ -14,7 +14,7 @@ services:
       - DB_NAME=capstone
       - CLOUDINARY_URL=cloudinary://864167348632296:BWJBloyOSCLs6Zfi9pPxvDQ_TlY@dwvq529jy 
     ports:
-      - "8000:8000"
+      - "443:443"
     networks:
       - db_main
     depends_on:
@@ -30,6 +30,8 @@ services:
       - "3306:3306"
     networks:
       - db_main
+    volumes:
+      - D:\captone\capstone\mysql:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 20s
