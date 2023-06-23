@@ -16,6 +16,7 @@ type Thread struct {
 	Like           []Like    `json:"like"`
 }
 type AllThread struct {
+	gorm.Model
 	ID      uint    `gorm:"primary_key"`
 	Title   string  `json:"title" form:"title" validate:"required"`
 	Content string  `json:"content" form:"content" validate:"required"`
@@ -60,6 +61,7 @@ func ConvertThreadToThreadResponse(thread *Thread) ThreadResponse {
 func ConverThreadToAllThread(thread *Thread) AllThread {
 
 	return AllThread{
+		Model:   gorm.Model{CreatedAt: thread.CreatedAt},
 		ID:      thread.ID,
 		Title:   thread.Title,
 		Content: thread.Content,

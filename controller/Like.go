@@ -19,6 +19,7 @@ func CreateLikeController(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	
 	Like.UserID = int(id)
 	newLike, err := database.CreateLike(c.Request().Context(), Like)
 	if err != nil {
