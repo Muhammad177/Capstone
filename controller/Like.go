@@ -5,49 +5,75 @@ import (
 	"strconv"
 
 	"Capstone/database"
+	"Capstone/midleware"
 	"Capstone/models"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 func CreateLikeController(c echo.Context) error {
-	user := c.Get("user").(models.User)
-	thread_id, _ := strconv.Atoi(c.Param("id"))
-
-	_, err := database.CreateLikeThreads(c.Request().Context(), int(user.ID), thread_id)
+	Like := models.Like{}
+	c.Bind(&Like)
+	id, err := midleware.ClaimsId(c)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	Like.UserID = int(id)
+	newLike, err := database.CreateLike(c.Request().Context(), Like)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success Like thread",
+		"data":    newLike,
 	})
 }
 
 func DeleteLikeController(c echo.Context) error {
-	user := c.Get("user").(models.User)
-	thread_id, _ := strconv.Atoi(c.Param("id"))
-
-	err := database.DeleteLikeThreads(c.Request().Context(), int(user.ID), thread_id)
+	id, err := midleware.ClaimsId(c)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	var users models.User
+	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	Id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	err = database.DeleteLikes(c.Request().Context(), Id)
+	if err != nil {
+		if err == database.ErrInvalidID {
+			return echo.NewHTTPError(http.StatusNotFound, err.Error())
+		}
+
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success deleting Like data",
 	})
 }
-
 func GetLikeController(c echo.Context) error {
-	user := c.Get("user").(models.User)
-
-	threads, err := database.GetLikeThreads(c.Request().Context(), int(user.ID))
+	id, err := midleware.ClaimsId(c)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	Like, err := database.GetLikesByID(c.Request().Context(), int(id))
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, err.Error())
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success get Like data",
-		"data":    threads,
+		"message": "success getting Thread",
+		"data":    Like,
 	})
 }
