@@ -54,6 +54,7 @@ func New(e *echo.Echo) {
 	NewThreadControllers(eJwt)
 	NewBookmarkedContoller(bookmark)
 	Follow(eJwt)
+	Like(eJwt)
 	NewCommentControllers(eJwt)
 
 }
