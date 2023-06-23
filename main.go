@@ -3,11 +3,15 @@ package main
 import (
 	"Capstone/database"
 	"Capstone/routes"
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
 )
+
+const DEFAULT_PORT = "8080"
 
 func main() {
 	if env := os.Getenv("ENV"); env != "production" {
@@ -18,7 +22,19 @@ func main() {
 		}
 	}
 	database.Init()
-	e := routes.New()
-	e.Start("8000")
+
+	app := echo.New()
+
+	routes.New(app)
+
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = DEFAULT_PORT
+	}
+
+	appPort := fmt.Sprintf(":%s", port)
+
+	app.Logger.Fatal(app.Start(appPort))
 
 }
