@@ -21,8 +21,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	}
 	return nil
 }
-func New() *echo.Echo {
-	e := echo.New()
+func New(e *echo.Echo) {
 	e.Validator = &CustomValidator{validator: validator.New()}
 	e.Use(middleware.CORS())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -57,8 +56,6 @@ func New() *echo.Echo {
 	Follow(eJwt)
 	NewCommentControllers(eJwt)
 
-	e.Logger.Fatal(e.Start(":8000"))
-	return e
 }
 
 func NewThreadControllers(e *echo.Group) {

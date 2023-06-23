@@ -2,7 +2,6 @@ package main
 
 import (
 	"Capstone/database"
-	"Capstone/routes"
 	"log"
 	"os"
 
@@ -18,7 +17,5 @@ func main() {
 		}
 	}
 	database.Init()
-	e := routes.New()
-	e.Start("8000")
 
 }
