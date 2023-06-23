@@ -56,7 +56,7 @@ func New() *echo.Echo {
 	NewBookmarkedContoller(bookmark)
 	Follow(eJwt)
 	NewCommentControllers(eJwt)
-
+	Like(eJwt)
 	e.Logger.Fatal(e.Start(":8000"))
 	return e
 }
@@ -93,6 +93,6 @@ func Follow(e *echo.Group) {
 }
 func Like(e *echo.Group) {
 	e.POST("/like", controller.CreateLikeController)
-	e.DELETE("/like/:id", controller.DeleteLikeController)
+	e.DELETE("/like/:id", controller.DeleteFollowsControllerUser)
 	e.GET("/like", controller.GetLikeController)
 }
