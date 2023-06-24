@@ -8,8 +8,8 @@ import (
 type GetReportResponse struct {
 	ID             int                    `json:"id"`
 	Reason         string                 `json:"reason"`
-	Reporter       ReporterResponse       `json: "reporter"`
-	ReportedThread ReportedTheardResponse `json:"reportedThread`
+	Reporter       ReporterResponse       `json:"reporter"`
+	ReportedThread ReportedTheardResponse `json:"reportedThread"`
 	CreateAt       time.Time              `json:"createdAt"`
 	UpdateAt       time.Time              `json:"updateAt"`
 }
