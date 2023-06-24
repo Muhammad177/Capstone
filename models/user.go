@@ -15,6 +15,7 @@ type User struct {
 	Role       string   `json:"role" form:"role"`
 	Threads    []Thread `json:"threads"`
 	Bookmarked []Thread `gorm:"many2many: thread_user_assoc"`
+	// Followed []User `gorm:"many2many: user_user_assoc"`
 }
 type AllUser struct {
 	ID        uint   `gorm:"primary_key"`

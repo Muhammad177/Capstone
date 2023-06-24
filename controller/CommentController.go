@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"Capstone/database"
+	"Capstone/dto"
 	"Capstone/midleware"
 	"Capstone/models"
 
@@ -83,16 +84,19 @@ func UpdateCommentsControllerUser(c echo.Context) error {
 	})
 }
 func GetCommentController(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
-	comment, err := database.GetComments(c.Request().Context())
-
+	comment, err := database.GetComments(c.Request().Context(), id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Success: Retrieved all Comment",
-		"data":    comment,
+		"data":    dto.NewGetCommentsResponse(comment),
 	})
 }
 
@@ -112,6 +116,6 @@ func GetCommentIDController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success getting Comment",
-		"data":    comment,
+		"data":    dto.NewGetCommentResponse(comment),
 	})
 }

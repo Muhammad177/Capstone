@@ -55,6 +55,7 @@ func New(e *echo.Echo) {
 	NewBookmarkedContoller(bookmark)
 	Follow(eJwt)
 	Like(eJwt)
+	NewReportController(eJwt)
 	NewCommentControllers(eJwt)
 
 }
@@ -82,7 +83,7 @@ func NewCommentControllers(e *echo.Group) {
 	e.DELETE("/comment/:id", controller.DeleteCommentsControllerUser)
 	e.PUT("/comment/:id", controller.UpdateCommentsControllerUser)
 	e.GET("/comment/:id", controller.GetCommentIDController)
-	e.GET("/comment", controller.GetCommentController)
+	e.GET("/thread/:id/comment", controller.GetCommentController)
 }
 func Follow(e *echo.Group) {
 	e.POST("/follow", controller.CreateFollowController)
@@ -93,4 +94,10 @@ func Like(e *echo.Group) {
 	e.POST("/like", controller.CreateLikeController)
 	e.DELETE("/like/:id", controller.DeleteLikeController)
 	e.GET("/like", controller.GetLikeController)
+}
+func NewReportController(e *echo.Group) {
+	e.POST("/report", controller.CreateReportController)
+	e.DELETE("/report/:id", controller.DeleteReportController)
+	e.GET("/report", controller.GetReportsController)
+	e.GET("/report/:id", controller.GetReportByIdController)
 }
