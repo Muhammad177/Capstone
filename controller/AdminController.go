@@ -203,40 +203,37 @@ func DeleteUserAdminController(c echo.Context) error {
 }
 
 func LoginAdminController(c echo.Context) error {
-	admin := models.AdminResponse{ID: 1, Name: "Wahyu", Email: "admin@gmail.com", Password: "admin123"}
-	if err := c.Bind(&admin); err != nil {
+	user := models.User{}
+	if err := c.Bind(&user); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "bad request"})
 	}
-	var admins = []models.AdminResponse{
-		{ID: 1, Name: "Wahyu", Email: "admin@gmail.com", Password: "admin123"},
-	}
-	for _, a := range admins {
-		if a.Email == admin.Email && a.Password == admin.Password {
-			token, err := midleware.CreateToken(int(a.ID), a.Name, "admin")
-			if err != nil {
-				return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-					"message": "Failed Login",
-					"error":   err.Error(),
-				})
-			}
 
-			adminResponse := models.UserResponse{admin.ID, admin.Name, admin.Email, token}
-			return c.JSON(http.StatusOK, map[string]interface{}{
-				"message": "Login Admin Sukses",
-				"Admin":   adminResponse,
+	// Verifikasi admin berdasarkan email dan password
+	if user.Email == "admin@gmail.com" && user.Password == "admin123" {
+		token, err := midleware.CreateToken(int(user.ID), user.Username, "admin")
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"message": "Failed Login",
+				"error":   err.Error(),
 			})
 		}
+
+		adminResponse := models.UserResponse{int(user.ID), user.Username, user.Email, token}
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "Login Admin Sukses",
+			"Admin":   adminResponse,
+		})
 	}
 
-	user := models.User{}
-	c.Bind(&user)
 	if err := database.DB.Where("email = ? AND password = ?", user.Email, user.Password).First(&user).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
 			"message": "Failed Login",
 			"error":   err.Error(),
 		})
 	}
-
+	if user.Role != "admin" {
+		return c.JSON(http.StatusUnauthorized, "Only admin can access")
+	}
 	token, err := midleware.CreateToken(int(user.ID), user.Username, user.Role)
 
 	if err != nil {
