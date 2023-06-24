@@ -12,6 +12,7 @@ import (
 type GetBookmarkResponse struct {
 	ThreadID  int            `json:"thread_id"`
 	Title     string         `json:"title"`
+	Content   string         `json:"content"`
 	Author    AuthorResponse `json:"author"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdateAt  time.Time      `json:"updatedAt"`
@@ -21,6 +22,7 @@ func NewGetBookmarkResponse(data models.Thread) *GetBookmarkResponse {
 	return &GetBookmarkResponse{
 		ThreadID:  int(data.ID),
 		Title:     data.Title,
+		Content:   data.Content,
 		Author:    *NewAuthorResponse(data.User),
 		CreatedAt: data.CreatedAt,
 		UpdateAt:  data.UpdatedAt,
