@@ -14,12 +14,24 @@ import (
 )
 
 func CreateCommentController(c echo.Context) error {
-	Comment := models.Comment{}
-	c.Bind(&Comment)
 	id, err := midleware.ClaimsId(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
+	mutes, err := database.GetMute(c.Request().Context())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	isMutedOrBlocked, message := midleware.CheckMutekStatus(mutes, id)
+	if isMutedOrBlocked {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": message,
+		})
+	}
+	Comment := models.Comment{}
+	c.Bind(&Comment)
 	Comment.UserID = int(id)
 	newComment, err := database.CreateComment(c.Request().Context(), Comment)
 	if err != nil {
@@ -27,11 +39,10 @@ func CreateCommentController(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success creating Comment",
+		"message": "Success creating comment",
 		"data":    models.ConvertCommentToCommentResponse(&newComment),
 	})
 }
-
 func DeleteCommentsControllerUser(c echo.Context) error {
 	id, err := midleware.ClaimsId(c)
 	if err != nil {

@@ -47,7 +47,7 @@ func New(e *echo.Echo) {
 	Like(eJwt)
 	NewReportController(eJwt)
 	NewCommentControllers(eJwt)
-
+	MuteBlock(eJwt)
 }
 
 func NewThreadControllers(e *echo.Group) {
@@ -90,4 +90,11 @@ func NewReportController(e *echo.Group) {
 	e.DELETE("/report/:id", controller.DeleteReportController)
 	e.GET("/report", controller.GetReportsController)
 	e.GET("/report/:id", controller.GetReportByIdController)
+}
+
+func MuteBlock(e *echo.Group) {
+	e.POST("/Mute", controller.CreateMuteController)
+	e.DELETE("/Mute/:id", controller.DeleteMutesControllerUser)
+	e.POST("/Block", controller.CreateBlockController)
+	e.DELETE("/Block/:id", controller.DeleteBlockControllerUser)
 }
