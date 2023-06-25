@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
 	"Capstone/dto"
@@ -32,16 +31,11 @@ func GetSaveThreadController(c echo.Context) error {
 
 }
 
-type BookmarkThreadRequest struct {
-	ID int `json:"thread_id"`
-}
-
 func CreateSaveThreadsController(c echo.Context) error {
-	svThread := BookmarkThreadRequest{}
+	svThread := dto.BookmarkThreadRequest{}
 	if err := c.Bind(&svThread); err != nil {
-		fmt.Println(err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	fmt.Print(svThread)
 
 	id, err := midleware.ClaimsId(c)
 	if err != nil {

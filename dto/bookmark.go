@@ -52,3 +52,7 @@ func NewGetBookmarksResponse(data models.User) *GetBookmarksResponse {
 
 	return &result
 }
+
+type BookmarkThreadRequest struct {
+	ID int `json:"thread_id"`
+}

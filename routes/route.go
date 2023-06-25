@@ -37,6 +37,8 @@ func New(e *echo.Echo) {
 	eJwt.DELETE("/user", controller.DeleteUserController)
 	eJwt.GET("/user", controller.GetUserController)
 	eJwt.GET("/Alluser", controller.GetAllUserController)
+	eJwt.POST("/user/follow", controller.FollowUserController)
+	eJwt.DELETE("/user/follow", controller.UnFollowUserController)
 	//confirm
 
 	bookmark := eJwt.Group("/bookmark")

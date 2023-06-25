@@ -2,8 +2,10 @@ package controller
 
 import (
 	"Capstone/database"
+	"Capstone/dto"
 	"Capstone/midleware"
 	"Capstone/models"
+	"fmt"
 	"net/http"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -17,18 +19,11 @@ func GetUserController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	// Fetch the user's information based on the user ID
-	var users []models.User
-	if err := database.DB.Preload("Threads").Where("id = ?", int(id)).Find(&users).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	user := make([]models.AllUserFollow, len(users))
-	for i, users := range users {
-		user[i] = models.ConvertUserToAllUserFollow(&users)
-	}
+	user, followingCount, followerCount, err := database.GetUsersByID(c.Request().Context(), int(id))
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success get user info by id",
-		"user":    user,
+		"data":    dto.NewDetailUserResponse(user, followingCount, followerCount),
 	})
 }
 func UpdateUserController(c echo.Context) error {
@@ -37,59 +32,60 @@ func UpdateUserController(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	var users models.User
-	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
-	}
 
-	if err := c.Bind(&users); err != nil {
+	user := models.User{}
+	c.Bind(&user)
+
+	err = database.UpdateUser(c.Request().Context(), int(id))
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
 	}
-	if err := c.Validate(users); err != nil {
+	if err := c.Validate(user); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"messages": "error update user",
 			"error":    err.Error(),
 		})
 	}
-	users.Role = "User"
-	if err := database.DB.Model(&users).Updates(users).Error; err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
-	}
+	user.Role = "User"
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "User updated successfully",
-		"user":    users,
+		"data":    dto.ConvertUserToAllUser(user),
 	})
 }
+
 func DeleteUserController(c echo.Context) error {
 	id, err := midleware.ClaimsId(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	var users models.User
-	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
 
-	if err := database.DB.Delete(&users).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
+	err = database.DeleteUser(c.Request().Context(), int(id))
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success delete User by id",
-		"Produk":  users,
 	})
 }
+
 func LoginController(c echo.Context) error {
 	user := models.User{}
 	c.Bind(&user)
-	if err := database.DB.Where("email = ? AND password = ?", user.Email, user.Password).First(&user).Error; err != nil {
+
+	savedUser, err := database.GetUserByEmail(c.Request().Context(), user.Email)
+	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
 			"message": "Failed Login",
 			"error":   err.Error(),
 		})
 	}
+	if user.Password != savedUser.Password {
+		return echo.NewHTTPError(http.StatusBadRequest, map[string]interface{}{
+			"message": "Password incorect",
+			"error":   err.Error(),
+		})
+	}
 
-	token, err := midleware.CreateToken(int(user.ID), user.Username, user.Role)
+	token, err := midleware.CreateToken(int(savedUser.ID), savedUser.Username, savedUser.Role)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -97,7 +93,7 @@ func LoginController(c echo.Context) error {
 			"error":   err.Error(),
 		})
 	}
-	usersResponse := models.UserResponse{ID: int(user.ID), Name: user.Username, Email: user.Email, Token: token}
+	usersResponse := models.UserResponse{ID: int(savedUser.ID), Name: savedUser.Username, Email: savedUser.Email, Token: token}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success Login",
@@ -153,4 +149,52 @@ func GetAllThreadUserController(c echo.Context) error {
 		"message": "Success: Retrieved all threads",
 		"data":    allThreads,
 	})
+}
+
+func FollowUserController(c echo.Context) error {
+	followUser := dto.FollowUserRequest{}
+	if err := c.Bind(&followUser); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if followUser.ID == int(id) {
+		return echo.NewHTTPError(http.StatusBadRequest, ("Can't follow ur self"))
+	}
+	fmt.Println(followUser, id)
+
+	err = database.FollowUser(c.Request().Context(), int(id), followUser.ID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success following user",
+	})
+}
+
+func UnFollowUserController(c echo.Context) error {
+	followUser := dto.FollowUserRequest{}
+	if err := c.Bind(&followUser); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	err = database.UnFollowUser(c.Request().Context(), int(id), followUser.ID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success following user",
+	})
+
 }

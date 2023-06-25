@@ -17,6 +17,11 @@ type User struct {
 	Bookmarked []Thread `gorm:"many2many: thread_user_assoc"`
 	Followed   []User   `gorm:"many2many: user_folowed_assoc"`
 }
+
+type UserFollowedAssoc struct {
+	UserID     uint `gorm:"primary_key"`
+	FollowedID uint `gorm:"primary_key"`
+}
 type AllUser struct {
 	ID        uint   `gorm:"primary_key"`
 	Username  string `json:"username" form:"username"`

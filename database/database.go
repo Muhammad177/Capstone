@@ -50,6 +50,11 @@ func InitDB() {
 	if err != nil {
 		panic(err)
 	}
+
+	err = DB.SetupJoinTable(&models.User{}, "Followed", &models.UserFollowedAssoc{})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func InitialMigration() {
