@@ -3,26 +3,16 @@ package routes
 import (
 	"Capstone/constant"
 	"Capstone/controller"
+	"Capstone/dto"
 	"Capstone/midleware"
-	"net/http"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-type CustomValidator struct {
-	validator *validator.Validate
-}
-
-func (cv *CustomValidator) Validate(i interface{}) error {
-	if err := cv.validator.Struct(i); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	return nil
-}
 func New(e *echo.Echo) {
-	e.Validator = &CustomValidator{validator: validator.New()}
+	e.Validator = dto.NewValidator(validator.New())
 	e.Use(middleware.CORS())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
@@ -55,8 +45,9 @@ func New(e *echo.Echo) {
 	NewBookmarkedContoller(bookmark)
 	Follow(eJwt)
 	Like(eJwt)
+	NewReportController(eJwt)
 	NewCommentControllers(eJwt)
-
+	MuteBlock(eJwt)
 }
 
 func NewThreadControllers(e *echo.Group) {
@@ -82,7 +73,7 @@ func NewCommentControllers(e *echo.Group) {
 	e.DELETE("/comment/:id", controller.DeleteCommentsControllerUser)
 	e.PUT("/comment/:id", controller.UpdateCommentsControllerUser)
 	e.GET("/comment/:id", controller.GetCommentIDController)
-	e.GET("/comment", controller.GetCommentController)
+	e.GET("/thread/:id/comment", controller.GetCommentController)
 }
 func Follow(e *echo.Group) {
 	e.POST("/follow", controller.CreateFollowController)
@@ -93,4 +84,17 @@ func Like(e *echo.Group) {
 	e.POST("/like", controller.CreateLikeController)
 	e.DELETE("/like/:id", controller.DeleteLikeController)
 	e.GET("/like", controller.GetLikeController)
+}
+func NewReportController(e *echo.Group) {
+	e.POST("/report", controller.CreateReportController)
+	e.DELETE("/report/:id", controller.DeleteReportController)
+	e.GET("/report", controller.GetReportsController)
+	e.GET("/report/:id", controller.GetReportByIdController)
+}
+
+func MuteBlock(e *echo.Group) {
+	e.POST("/Mute", controller.CreateMuteController)
+	e.DELETE("/Mute/:id", controller.DeleteMutesControllerUser)
+	e.POST("/Block", controller.CreateBlockController)
+	e.DELETE("/Block/:id", controller.DeleteBlockControllerUser)
 }

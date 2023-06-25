@@ -52,7 +52,7 @@ func DeleteSaveThreads(ctx context.Context, user_id int, thread_id int) error {
 func GetSaveThreads(ctx context.Context, user_id int) (models.User, error) {
 	var svThread models.User
 
-	err := DB.WithContext(ctx).Where(" id = ? ", user_id).Preload("Bookmarked").Find(&svThread).Error
+	err := DB.WithContext(ctx).Where(" id = ? ", user_id).Preload("Bookmarked").Preload("Bookmarked.User").Find(&svThread).Error
 	if err != nil {
 		return models.User{}, err
 	}

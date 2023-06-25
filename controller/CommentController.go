@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"Capstone/database"
+	"Capstone/dto"
 	"Capstone/midleware"
 	"Capstone/models"
 
@@ -13,12 +14,24 @@ import (
 )
 
 func CreateCommentController(c echo.Context) error {
-	Comment := models.Comment{}
-	c.Bind(&Comment)
 	id, err := midleware.ClaimsId(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
+	mutes, err := database.GetMute(c.Request().Context())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	isMutedOrBlocked, message := midleware.CheckMutekStatus(mutes, id)
+	if isMutedOrBlocked {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": message,
+		})
+	}
+	Comment := models.Comment{}
+	c.Bind(&Comment)
 	Comment.UserID = int(id)
 	newComment, err := database.CreateComment(c.Request().Context(), Comment)
 	if err != nil {
@@ -26,11 +39,10 @@ func CreateCommentController(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success creating Comment",
-		"data":    newComment,
+		"message": "Success creating comment",
+		"data":    models.ConvertCommentToCommentResponse(&newComment),
 	})
 }
-
 func DeleteCommentsControllerUser(c echo.Context) error {
 	id, err := midleware.ClaimsId(c)
 	if err != nil {
@@ -83,16 +95,19 @@ func UpdateCommentsControllerUser(c echo.Context) error {
 	})
 }
 func GetCommentController(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
-	comment, err := database.GetComments(c.Request().Context())
-
+	comment, err := database.GetComments(c.Request().Context(), id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Success: Retrieved all Comment",
-		"data":    comment,
+		"data":    dto.NewGetCommentsResponse(comment),
 	})
 }
 
@@ -112,6 +127,6 @@ func GetCommentIDController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success getting Comment",
-		"data":    comment,
+		"data":    dto.NewGetCommentResponse(comment),
 	})
 }
