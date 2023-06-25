@@ -58,8 +58,8 @@ func InitialMigration() {
 		&models.Thread{},
 		&models.Follow{},
 		&models.Comment{},
-		&models.Like{},
 		&models.Mute{},
+		&models.Like{},
 		&models.Report{},
 	)
 }
