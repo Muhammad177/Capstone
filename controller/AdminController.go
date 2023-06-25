@@ -14,14 +14,16 @@ func CreateUserController(c echo.Context) error {
 	// Bind data pengguna dari permintaan
 	user := models.User{}
 	err := c.Bind(&user)
-	if err := c.Validate(user); err != nil {
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
+	}
+
+	if err := c.Validate(&user); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"messages": "error create user",
 			"error":    err.Error(),
 		})
-	}
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
 	}
 
 	if err := database.DB.Where("email = ?", user.Email).First(&user).Error; err == nil {
@@ -218,7 +220,7 @@ func LoginAdminController(c echo.Context) error {
 			})
 		}
 
-		adminResponse := models.UserResponse{int(user.ID), user.Username, user.Email, token}
+		adminResponse := models.UserResponse{ID: int(user.ID), Name: user.Username, Email: user.Email, Token: token}
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"message": "Login Admin Sukses",
 			"Admin":   adminResponse,
@@ -242,7 +244,7 @@ func LoginAdminController(c echo.Context) error {
 			"error":   err.Error(),
 		})
 	}
-	usersResponse := models.UserResponse{int(user.ID), user.Username, user.Email, token}
+	usersResponse := models.UserResponse{ID: int(user.ID), Name: user.Username, Email: user.Email, Token: token}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success Login Admin",

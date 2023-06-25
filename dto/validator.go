@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -11,6 +12,13 @@ import (
 
 type CustomValidator struct {
 	Validator *validator.Validate
+}
+
+func NewValidator(validator *validator.Validate) *CustomValidator {
+	validator.RegisterValidation("passwordString", validatePasswordString)
+	return &CustomValidator{
+		Validator: validator,
+	}
 }
 
 func (cv *CustomValidator) Validate(i interface{}) error {
@@ -44,4 +52,12 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	}
 
 	return nil
+}
+
+func validatePasswordString(fl validator.FieldLevel) bool {
+	password := fl.Field().String()
+
+	regex, _ := regexp.Compile("^[A-Za-z0-9!@#$%^&*()-=_+]+$")
+	result := regex.MatchString(password)
+	return result
 }

@@ -8,14 +8,14 @@ type User struct {
 	gorm.Model
 	Username   string   `json:"username" form:"username" validate:"required"`
 	Email      string   `json:"email" form:"email" validate:"required,email"`
-	Password   string   `json:"password" form:"password" validate:"required,min=6"`
+	Password   string   `json:"password" form:"password" validate:"required,passwordString,min=6"`
 	Image_url  string   `json:"image_url" form:"image_url"`
 	Age        int      `json:"age" form:"age"`
 	Bio        string   `json:"bio" form:"bio"`
 	Role       string   `json:"role" form:"role"`
 	Threads    []Thread `json:"threads"`
 	Bookmarked []Thread `gorm:"many2many: thread_user_assoc"`
-	// Followed []User `gorm:"many2many: user_user_assoc"`
+	Followed   []User   `gorm:"many2many: user_folowed_assoc"`
 }
 type AllUser struct {
 	ID        uint   `gorm:"primary_key"`

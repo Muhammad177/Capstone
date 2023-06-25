@@ -97,7 +97,7 @@ func LoginController(c echo.Context) error {
 			"error":   err.Error(),
 		})
 	}
-	usersResponse := models.UserResponse{int(user.ID), user.Username, user.Email, token}
+	usersResponse := models.UserResponse{ID: int(user.ID), Name: user.Username, Email: user.Email, Token: token}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success Login",

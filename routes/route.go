@@ -12,7 +12,7 @@ import (
 )
 
 func New(e *echo.Echo) {
-	e.Validator = &dto.CustomValidator{Validator: validator.New()}
+	e.Validator = dto.NewValidator(validator.New())
 	e.Use(middleware.CORS())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
