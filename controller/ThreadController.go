@@ -88,6 +88,17 @@ func CreateThreadsController(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	mutes, err := database.GetMute(c.Request().Context())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	isMutedOrBlocked, message := midleware.CheckBlockStatus(mutes, id)
+	if isMutedOrBlocked {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": message,
+		})
+	}
 	thread.UserID = int(id)
 	thread.Title = Allthread.Title
 	thread.Content = Allthread.Content

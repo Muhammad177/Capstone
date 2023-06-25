@@ -2,6 +2,7 @@ package midleware
 
 import (
 	"Capstone/constant"
+	"Capstone/models"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -31,4 +32,26 @@ func ClaimsRole(c echo.Context) (string, error) {
 
 	role := claims["role"].(string)
 	return role, nil
+}
+func CheckMutekStatus(mutes []models.Mute, userID float64) (bool, string) {
+	for _, m := range mutes {
+		if m.UserID == userID {
+			if m.Status == "mute" {
+				return true, "You have been muted by an admin"
+			} else if m.Status == "block" {
+				return true, "You have been blocked by an admin"
+			}
+		}
+	}
+	return false, ""
+}
+func CheckBlockStatus(mutes []models.Mute, userID float64) (bool, string) {
+	for _, m := range mutes {
+		if m.UserID == userID {
+			if m.Status == "block" {
+				return true, "You have been blocked by an admin"
+			}
+		}
+	}
+	return false, ""
 }
