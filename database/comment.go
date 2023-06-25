@@ -12,7 +12,7 @@ func CreateComment(ctx context.Context, Comment models.Comment) (models.Comment,
 	}
 
 	// Preload user data for the created Comment
-	err = DB.WithContext(ctx).Preload("Thread").First(&Comment).Error
+	err = DB.WithContext(ctx).Preload("User").Preload("Thread").First(&Comment).Error
 	if err != nil {
 		return models.Comment{}, err
 	}
