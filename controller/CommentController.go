@@ -28,7 +28,7 @@ func CreateCommentController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success creating Comment",
-		"data":    newComment,
+		"data":    models.ConvertCommentToCommentResponse(&newComment),
 	})
 }
 
