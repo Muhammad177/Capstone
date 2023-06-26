@@ -34,20 +34,6 @@ func GetUsersByID(ctx context.Context, id int) (savedUser models.User, following
 	return
 }
 
-func UpdateUser(ctx context.Context, id int) error {
-	var user models.User
-	result := DB.WithContext(ctx).Model(&models.User{}).Where("id = ?", id).Updates(&user)
-	if result.Error != nil {
-		return result.Error
-	}
-
-	if result.RowsAffected == 0 {
-		return ErrIDNotFound
-	}
-
-	return nil
-}
-
 func DeleteUser(ctx context.Context, id int) error {
 	var user models.User
 

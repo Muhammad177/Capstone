@@ -99,3 +99,8 @@ type AdminResponse struct {
 	Email    string `json:"email" form:"email"`
 	Password string `json:"password" form:"password"`
 }
+type UpdateProfile struct {
+	ID       int    `json:"id" form:"name"`
+	Username string `json:"username" form:"username"`
+	Bio      string `json:"bio" form:"bio"`
+}

@@ -32,25 +32,28 @@ func UpdateUserController(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	var users models.User
+	if err := database.DB.Where("id = ?", id).First(&users).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
+	}
 
-	user := models.User{}
-	c.Bind(&user)
-
-	err = database.UpdateUser(c.Request().Context(), int(id))
-	if err != nil {
+	if err := c.Bind(&users); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
 	}
-	if err := c.Validate(user); err != nil {
+	if err := c.Validate(users); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"messages": "error update user",
 			"error":    err.Error(),
 		})
 	}
-	user.Role = "User"
+	users.Role = "User"
+	if err := database.DB.Model(&users).Updates(users).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
+	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "User updated successfully",
-		"data":    dto.ConvertUserToAllUser(user),
+		"user":    users,
 	})
 }
 
@@ -197,4 +200,35 @@ func UnFollowUserController(c echo.Context) error {
 		"message": "success following user",
 	})
 
+}
+func UpdateProfile(c echo.Context) error {
+	// Retrieve the JWT token from the request context and extract the role claim
+	id, err := midleware.ClaimsId(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	var user models.User
+	var users models.UpdateProfile
+	if err := database.DB.Where("id = ?", id).First(&user).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
+	}
+
+	if err := c.Bind(&users); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request payload")
+	}
+	if err := c.Validate(users); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": "Error updating user",
+			"error":   err.Error(),
+		})
+	}
+
+	if err := database.DB.Model(&user).Updates(users).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Database error")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "User updated successfully",
+		"user":    user,
+	})
 }
