@@ -55,6 +55,16 @@ func InitDB() {
 	if err != nil {
 		panic(err)
 	}
+
+	err = DB.SetupJoinTable(&models.Thread{}, "Like", &models.ThreadLikeAssoc{})
+	if err != nil {
+		panic(err)
+	}
+
+	err = DB.SetupJoinTable(&models.User{}, "LikedThread", &models.ThreadLikeAssoc{})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func InitialMigration() {
@@ -64,7 +74,6 @@ func InitialMigration() {
 		&models.Follow{},
 		&models.Comment{},
 		&models.Mute{},
-		&models.Like{},
 		&models.Report{},
 	)
 }

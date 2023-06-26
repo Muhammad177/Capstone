@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"Capstone/database"
+	"Capstone/dto"
 	"Capstone/midleware"
 	"Capstone/models"
 
@@ -33,11 +34,11 @@ func GetThreadController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Success: Retrieved all threads",
-		"data":    allThreads,
+		"data":    dto.NewGetAllThreadResponses(thread),
 	})
 }
 
-func GetThreadsIDController(c echo.Context) error {
+func GetThreadByIDController(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -53,7 +54,7 @@ func GetThreadsIDController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success getting Thread",
-		"data":    models.ConvertThreadToThreadResponse(&thread),
+		"data":    dto.NewDetailThreadResponse(&thread),
 	})
 }
 func GetThreadControllerByTitle(c echo.Context) error {

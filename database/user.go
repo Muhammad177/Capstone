@@ -11,6 +11,10 @@ import (
 
 func GetUsersByID(ctx context.Context, id int) (savedUser models.User, followingCount int64, followerCount int64, err error) {
 
+	err = DB.WithContext(ctx).Preload("User").Where("id = ? ", id).First(&savedUser).Error
+	if err != nil {
+		return
+	}
 	err = DB.WithContext(ctx).Model(&models.User{Model: gorm.Model{ID: uint(id)}}).Preload("Followed").First(&savedUser).Error
 	if err != nil {
 		return

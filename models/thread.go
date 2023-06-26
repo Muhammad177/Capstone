@@ -13,7 +13,9 @@ type Thread struct {
 	User           User      `json:"user"`
 	Comments       []Comment `json:"comment"`
 	BookmarkedUser []User    `gorm:"many2many: thread_user_assoc"`
-	Like           []Like    `json:"like"`
+	Like           []User    `gorm:"many2many: thread_like_assoc"`
+	LikeCount      int       `json:"likeCount; default:0"`
+	CommentCount   int       `json:"commentCount"`
 }
 type AllThread struct {
 	gorm.Model

@@ -46,7 +46,6 @@ func New(e *echo.Echo) {
 	NewThreadControllers(eJwt)
 	NewBookmarkedContoller(bookmark)
 	Follow(eJwt)
-	Like(eJwt)
 	NewReportController(eJwt)
 	NewCommentControllers(eJwt)
 	MuteBlock(eJwt)
@@ -54,7 +53,7 @@ func New(e *echo.Echo) {
 
 func NewThreadControllers(e *echo.Group) {
 	e.GET("/admin/threads", controller.GetThreadController)
-	e.GET("/threads/:id", controller.GetThreadsIDController)
+	e.GET("/threads/:id", controller.GetThreadByIDController)
 	e.POST("/threads", controller.CreateThreadsController)
 	e.DELETE("/admin/threads/:id", controller.DeleteThreadsControllerAdmin)
 	e.DELETE("/threads/:id", controller.DeleteCommentsControllerUser)
@@ -62,7 +61,8 @@ func NewThreadControllers(e *echo.Group) {
 	e.PUT("/threads/:id", controller.UpdateThreadsControllerUser)
 	e.GET("/threads", controller.GetThreadControllerByTitle)
 	e.GET("/Allthreads", controller.GetAllThreadUserController)
-
+	e.POST("/threads/:id/like", controller.CreateLikeController)
+	e.DELETE("/threads/:id/like", controller.DeleteLikeController)
 }
 
 func NewBookmarkedContoller(e *echo.Group) {
@@ -82,11 +82,7 @@ func Follow(e *echo.Group) {
 	e.DELETE("/follow/:id", controller.DeleteFollowsControllerUser)
 	e.GET("/follow", controller.GetFollowIDController)
 }
-func Like(e *echo.Group) {
-	e.POST("/like", controller.CreateLikeController)
-	e.DELETE("/like/:id", controller.DeleteLikeController)
-	e.GET("/like", controller.GetLikeController)
-}
+
 func NewReportController(e *echo.Group) {
 	e.POST("/report", controller.CreateReportController)
 	e.DELETE("/report/:id", controller.DeleteReportController)

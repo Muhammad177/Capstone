@@ -3,44 +3,36 @@ package database
 import (
 	"Capstone/models"
 	"context"
+
+	"gorm.io/gorm"
 )
 
-func CreateLike(ctx context.Context, Like models.Like) (models.Like, error) {
-	err := DB.WithContext(ctx).Create(&Like).Error
+func LikeThread(ctx context.Context, user_id int, thread_id int) error {
+
+	err := DB.WithContext(ctx).Create(&models.ThreadLikeAssoc{UserID: uint(user_id), ThreadID: uint(thread_id)}).Error
 	if err != nil {
-		return models.Like{}, err
+		return err
 	}
 
-	// Preload user data for the created Like
-	err = DB.WithContext(ctx).Preload("Thread").First(&Like).Error
+	err = DB.WithContext(ctx).Model(&models.Thread{}).Where("id = ?", thread_id).Update("like_count", gorm.Expr("like_count+1")).Error
 	if err != nil {
-		return models.Like{}, err
-	}
-
-	return Like, nil
-}
-
-func DeleteLikes(ctx context.Context, id int) error {
-	var Like models.Like
-
-	result := DB.WithContext(ctx).Where("id = ?", id).Delete(&Like)
-	if result.Error != nil {
-		return result.Error
-	}
-
-	if result.RowsAffected == 0 {
-		return ErrIDNotFound
+		return err
 	}
 
 	return nil
 }
-func GetLikesByID(ctx context.Context, id int) ([]models.Like, error) {
-	var Like []models.Like
 
-	err := DB.WithContext(ctx).Preload("Thread").Where("user_id = ?", id).Find(&Like).Error
+func UnlikeThread(ctx context.Context, user_id int, thread_id int) error {
+
+	err := DB.WithContext(ctx).Unscoped().Delete(&models.ThreadLikeAssoc{UserID: uint(user_id), ThreadID: uint(thread_id)}).Error
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return Like, nil
+	err = DB.WithContext(ctx).Model(&models.Thread{}).Where("id = ?", thread_id).Update("like_count", gorm.Expr("like_count-1")).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -147,7 +147,7 @@ func GetAllThreadUserController(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Success: Retrieved all threads",
-		"data":    allThreads,
+		"data":    dto.NewGetAllThreadResponses(thread),
 	})
 }
 

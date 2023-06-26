@@ -9,7 +9,7 @@ func GetThreads(ctx context.Context) ([]models.Thread, error) {
 
 	var thread []models.Thread
 
-	err := DB.WithContext(ctx).Preload("User").Find(&thread).Error
+	err := DB.WithContext(ctx).Preload("User").Preload("Like").Find(&thread).Error
 	if err != nil {
 		return nil, err
 	}
@@ -17,15 +17,19 @@ func GetThreads(ctx context.Context) ([]models.Thread, error) {
 	return thread, nil
 }
 
-func GetThreadsByID(ctx context.Context, id int) (models.Thread, error) {
-	var thread models.Thread
+func GetThreadsByID(ctx context.Context, id int) (thread models.Thread, err error) {
 
-	err := DB.WithContext(ctx).Preload("Comments").Where("id = ?", id).First(&thread).Error
+	err = DB.WithContext(ctx).Table("thread_like_assocs").Select("count(*)").Where("thread_id = ?", id).Error
 	if err != nil {
-		return models.Thread{}, err
+		return
 	}
 
-	return thread, nil
+	err = DB.WithContext(ctx).Preload("Comments").Preload("User").Preload("Like").Where("id = ?", id).First(&thread).Error
+	if err != nil {
+		return
+	}
+
+	return
 }
 func GetThreadByTitle(ctx context.Context, title string) (thread []models.Thread, err error) {
 	title = "%" + title + "%"
