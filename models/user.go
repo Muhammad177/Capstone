@@ -100,7 +100,8 @@ type AdminResponse struct {
 	Password string `json:"password" form:"password"`
 }
 type UpdateProfile struct {
-	ID       int    `json:"id" form:"name"`
-	Username string `json:"username" form:"username"`
-	Bio      string `json:"bio" form:"bio"`
+	ID        int    `json:"id" form:"name"`
+	Username  string `json:"username" form:"username"`
+	Bio       string `json:"bio" form:"bio"`
+	Image_url string `json:"image_url" form:"image_url"`
 }
