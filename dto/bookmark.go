@@ -32,12 +32,14 @@ func NewGetBookmarkResponse(data models.Thread) *GetBookmarkResponse {
 type AuthorResponse struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
+	Profil   string `json:"profil"`
 }
 
 func NewAuthorResponse(author models.User) *AuthorResponse {
 	return &AuthorResponse{
 		Username: author.Username,
 		Email:    author.Email,
+		Profil:   author.Image_url,
 	}
 }
 

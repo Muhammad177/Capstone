@@ -6,18 +6,18 @@ import (
 )
 
 type GetCommentResponse struct {
-	ID       int            `json:"id"`
-	Comment  string         `json:"comment"`
-	Author   AuthorResponse `json:"author"`
-	CreateAt time.Time      `json:"createdAt"`
-	UpdateAt time.Time      `json:"updateAt"`
+	ID       int             `json:"id"`
+	Comment  string          `json:"comment"`
+	Author   AuthorsResponse `json:"author"`
+	CreateAt time.Time       `json:"createdAt"`
+	UpdateAt time.Time       `json:"updateAt"`
 }
 
 func NewGetCommentResponse(data models.Comment) *GetCommentResponse {
 	return &GetCommentResponse{
 		ID:       int(data.ID),
 		Comment:  data.Comment,
-		Author:   *NewAuthorResponse(data.User),
+		Author:   *NewAuthorsResponse(data.User),
 		CreateAt: data.CreatedAt,
 		UpdateAt: data.UpdatedAt,
 	}
@@ -26,12 +26,14 @@ func NewGetCommentResponse(data models.Comment) *GetCommentResponse {
 type AuthorsResponse struct {
 	ID       int    `json:"user_ID"`
 	Username string `json:"username"`
+	Profil   string `json:"profil"`
 }
 
 func NewAuthorsResponse(author models.User) *AuthorsResponse {
 	return &AuthorsResponse{
 		ID:       int(author.ID),
 		Username: author.Username,
+		Profil:   author.Image_url,
 	}
 }
 

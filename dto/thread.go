@@ -2,6 +2,7 @@ package dto
 
 import (
 	"Capstone/models"
+	"time"
 )
 
 type DetailThreadResponse struct {
@@ -46,6 +47,7 @@ func NewGetAllThreadResponse(thread *models.Thread) *GetAllThreadResponse {
 		ID:       thread.ID,
 		Title:    thread.Title,
 		Content:  thread.Content,
+		File:     thread.File,
 		Author:   *NewAuthorResponse(thread.User),
 		Comment:  thread.CommentCount,
 		LikeUser: *NewLikeUsersResponse(thread.Like),
@@ -83,6 +85,48 @@ func NewLikeUsersResponse(data []models.User) *LikeUsersResponse {
 
 	for _, each := range data {
 		result = append(result, *NewLikeUserResponse(&each))
+	}
+
+	return &result
+}
+
+type CommentResponse struct {
+	ID       int            `json:"id"`
+	Comment  string         `json:"comment"`
+	Author   AuthorResponse `json:"author"`
+	CreateAt time.Time      `json:"createdAt"`
+	UpdateAt time.Time      `json:"updateAt"`
+}
+
+func NewCommentResponse(data models.Comment) *CommentResponse {
+	return &CommentResponse{
+		ID:       int(data.ID),
+		Comment:  data.Comment,
+		Author:   *NewAuthorResponse(data.User),
+		CreateAt: data.CreatedAt,
+		UpdateAt: data.UpdatedAt,
+	}
+}
+
+type CommmentAuthorResponse struct {
+	ID       int    `json:"user_ID"`
+	Username string `json:"username"`
+}
+
+func NewCommmentAuthorResponse(author models.User) *AuthorsResponse {
+	return &AuthorsResponse{
+		ID:       int(author.ID),
+		Username: author.Username,
+	}
+}
+
+type CommentsResponse []CommentResponse
+
+func NewCommentsResponse(data []models.Comment) *CommentsResponse {
+	result := CommentsResponse{}
+
+	for _, each := range data {
+		result = append(result, *NewCommentResponse(each))
 	}
 
 	return &result
