@@ -24,7 +24,7 @@ func GetThreadsByID(ctx context.Context, id int) (thread models.Thread, err erro
 		return
 	}
 
-	err = DB.WithContext(ctx).Preload("Comments").Preload("User").Preload("Like").Where("id = ?", id).First(&thread).Error
+	err = DB.WithContext(ctx).Preload("Comments").Preload("User").Preload("Like").Preload("Comments.User").Where("id = ?", id).First(&thread).Error
 	if err != nil {
 		return
 	}
