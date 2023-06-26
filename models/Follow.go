@@ -7,6 +7,7 @@ type Follow struct {
 	UserID   int    `json:"user_id" form:"user_id"`
 	ThreadID int    `json:"thread_id" form:"thread_id" validate:"required"`
 	Thread   Thread `json:"thread"`
+	User     User   `json:"user"`
 }
 
 type Followrespon struct {
