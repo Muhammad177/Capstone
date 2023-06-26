@@ -10,7 +10,7 @@ type DetailThreadResponse struct {
 	Content      string              `json:"content"`
 	File         string              `json:"file"`
 	Author       AuthorResponse      `json:"author"`
-	CommentCount int                 `json:"commentCount`
+	CommentCount int                 `json:"commentCount"`
 	Comment      GetCommentsResponse `json:"comment"`
 	LikeUser     LikeUsersResponse   `json:"likeUser"`
 	Like         int                 `json:"like"`

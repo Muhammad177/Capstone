@@ -26,7 +26,6 @@ func GetUsersByID(ctx context.Context, id int) (savedUser models.User, following
 	}
 
 	err = DB.WithContext(ctx).Table("user_followed_assocs").Select("count(*)").Where("followed_id = ?", savedUser.ID).Scan(&followerCount).Error
-	// err = DB.WithContext(ctx).Where(&models.UserFollowedAssoc{FollowedID: savedUser.ID}).Count(&followerCount).Error
 	if err != nil {
 		return
 	}
