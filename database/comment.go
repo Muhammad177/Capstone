@@ -23,7 +23,7 @@ func CreateComment(ctx context.Context, Comment models.Comment) (models.Comment,
 func DeleteComments(ctx context.Context, commentID int, userID int) error {
 	var Comment models.Comment
 
-	result := DB.WithContext(ctx).Where("id = ? AND user_id = ?", commentID, userID).First(&Comment)
+	result := DB.WithContext(ctx).Where("id = ? AND user_id = ?", commentID, userID).First(&Comment).Delete(&Comment)
 	if result.Error != nil {
 		return result.Error
 	}
