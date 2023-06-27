@@ -57,7 +57,7 @@ func NewThreadControllers(e *echo.Group) {
 	e.GET("/threads/:id", controller.GetThreadByIDController)
 	e.POST("/threads", controller.CreateThreadsController)
 	e.DELETE("/admin/threads/:id", controller.DeleteThreadsControllerAdmin)
-	e.DELETE("/threads/:id", controller.DeleteCommentsControllerUser)
+	e.DELETE("/threads/:id", controller.DeleteThreadsControllerUser)
 	e.PUT("/admin/threads/:id", controller.UpdateThreadsControllerAdmin)
 	e.PUT("/threads/:id", controller.UpdateThreadsControllerUser)
 	e.GET("/threads", controller.GetThreadControllerByTitle)
