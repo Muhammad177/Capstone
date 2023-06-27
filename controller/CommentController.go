@@ -101,9 +101,9 @@ func GetCommenController(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	allUsers := make([]models.CommentResponse, len(comment))
+	allUsers := make([]models.CommenResponse, len(comment))
 	for i, comments := range comment {
-		allUsers[i] = models.ConvertCommentToCommentResponse(&comments)
+		allUsers[i] = models.ConvertCommenToCommentResponse(&comments)
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Success: Retrieved all Comment",

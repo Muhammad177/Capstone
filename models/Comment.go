@@ -32,3 +32,20 @@ func ConvertCommentToCommentResponse(comment *Comment) CommentResponse {
 		Username: ConvertAllUserSearch(&comment.User),
 	}
 }
+type CommenResponse struct {
+	ID       uint          `gorm:"primary_key"`
+	Comment  string        `json:"comment" form:"comment"`
+	ThreadID int           `json:"thread_id" form:"thread_id"`
+	UserID   int           `json:"user_id" form:"user_id"`
+	Username AllUserSearch `json:"user"`
+}
+
+func ConvertCommenToCommentResponse(comment *Comment) CommenResponse {
+	return CommenResponse{
+		ID:       comment.ID,
+		Comment:  comment.Comment,
+		ThreadID: comment.ThreadID,
+		UserID:   comment.UserID,
+		Username: ConvertAllUserSearch(&comment.User),
+	}
+}
