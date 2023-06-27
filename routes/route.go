@@ -76,7 +76,7 @@ func NewCommentControllers(e *echo.Group) {
 	e.DELETE("/comment/:id", controller.DeleteCommentsControllerUser)
 	e.PUT("/comment/:id", controller.UpdateCommentsControllerUser)
 	e.GET("/comment/:id", controller.GetCommentIDController)
-	e.GET("/thread/:id/comment", controller.GetCommentController)
+	e.GET("/comment", controller.GetCommentController)
 }
 func Follow(e *echo.Group) {
 	e.POST("/follow", controller.CreateFollowController)
