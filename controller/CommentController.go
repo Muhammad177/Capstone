@@ -94,6 +94,19 @@ func UpdateCommentsControllerUser(c echo.Context) error {
 		"data":    updateComment,
 	})
 }
+func GetCommenController(c echo.Context) error {
+
+	comment, err := database.GetComment(c.Request().Context())
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Success: Retrieved all Comment",
+		"data":    comment,
+	})
+}
 func GetCommentController(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
